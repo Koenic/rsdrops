@@ -212,6 +212,15 @@ class wintertodt(monster):
             loot += super().roll_loot()
         return loot
 
+
+class tempoross(monster):
+    loot_odds = {"soaked page":100/5369, "fish barrel":1/400, "tackle box":1/400, "big harpoonfish":1/1600, "Tome of water":1/1600, "dragon harpoon":1/1600}
+    loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":0}
+
+    def roll_loot(self):
+        #2 rolls on the table each kill
+        return super().roll_loot() + super().roll_loot()
+
 class corrupted_gauntlet(monster):
     loot_odds = {"blade of saeldor":1/400, "crystal armour seed":1/50}
     loot_amount = {"blade of saeldor":1,"crystal armour seed":1}
@@ -405,6 +414,10 @@ zul3 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":4,"serpentine visag
 night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="nightmare 3 staves")
 vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
 
+temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross + big harpoonfish")
+temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
+temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon + big harpoonfish")
+
 complete_drops = [hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, dks, corp, zul, zul2, zul3, night, vork]
-those2 = [dks, zulrah()]
+tempoross_update = [temp, temp1, temp2, tempoross()]
 all_bosses = [nightmare(), barrows(),grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]

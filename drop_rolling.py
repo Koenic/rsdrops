@@ -1,11 +1,8 @@
-from bosses import all_bosses, complete_drops
-import functools
-import random
-import math
-import multiprocessing
+from bosses import all_bosses, complete_drops, tempoross_update
 import concurrent.futures
 import matplotlib.pyplot as plt
 from collections import Counter
+import multiprocessing
 
 number_off_completions = 1000000
     
@@ -43,13 +40,19 @@ def calc_average_completion(boss, sample_size):
 
 
 if __name__ == '__main__':
-    bosses = all_bosses + complete_drops
+    bosses = tempoross_update
 
     for boss in bosses:
         print(boss.name)
 
     calc_average_completion(bosses[0], number_off_completions)
-    executor = concurrent.futures.ProcessPoolExecutor(10)
-    futures = [executor.submit(calc_average_completion, boss, number_off_completions) for boss in bosses]
 
-    concurrent.futures.wait(futures)
+    processes = []
+    for boss in bosses:
+        p = multiprocessing.Process(target=calc_average_completion, args=(boss, number_off_completions,))
+        processes.append(p)
+        p.start()
+
+    for process in processes:
+        process.join()
+
