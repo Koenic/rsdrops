@@ -1,8 +1,10 @@
 from bosses import all_bosses, complete_drops, tempoross_update
 import concurrent.futures
-import matplotlib.pyplot as plt
+import matplotlib
 from collections import Counter
 import multiprocessing
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 
 number_off_completions = 1000000
     
@@ -44,8 +46,6 @@ if __name__ == '__main__':
 
     for boss in bosses:
         print(boss.name)
-
-    calc_average_completion(bosses[0], number_off_completions)
 
     processes = []
     for boss in bosses:

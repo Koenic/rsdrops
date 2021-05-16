@@ -217,10 +217,6 @@ class tempoross(monster):
     loot_odds = {"soaked page":100/5369, "fish barrel":1/400, "tackle box":1/400, "big harpoonfish":1/1600, "Tome of water":1/1600, "dragon harpoon":1/1600}
     loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":0}
 
-    def roll_loot(self):
-        #2 rolls on the table each kill
-        return super().roll_loot() + super().roll_loot()
-
 class corrupted_gauntlet(monster):
     loot_odds = {"blade of saeldor":1/400, "crystal armour seed":1/50}
     loot_amount = {"blade of saeldor":1,"crystal armour seed":1}
