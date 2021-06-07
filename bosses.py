@@ -5,12 +5,15 @@ class monster:
 
     def __init__(self, loot_tables=None, loot_amount=None, name=None):
         
+        self.group_size = 1
         self.name = self.__class__.__name__
         if(loot_amount):
             self.loot_amount = loot_amount
             if(name):
                 self.name = name
 
+        for item, amount in self.loot_amount.items():
+            self.loot_amount[item] = self.group_size * amount
 
         possible_loot = set(self.loot_odds.keys())
         if(loot_tables is not None):
@@ -237,7 +240,7 @@ class dagannoth_prime(monster):
     loot_odds = {"seers ring":1/128, "mud battlestaff":1/128, "dragon axe":1/128}
     loot_amount = {"seers ring":1,"mud battlestaff":1,"dragon axe":0}
 
-class dks(monster):
+class dkings(monster):
     loot_odds = {"seers ring":1/128, "mud battlestaff":1/128, "dragon axe":1/128}
     secondary_odds = {"archer ring": 1/128, "seercul":1/128, "dragon axe":1/128}
     tertiary_odds = {"berserker ring":1/128, "warrior ring": 1/128, "dragon axe": 1/128}
@@ -391,8 +394,8 @@ class chambers_of_xeric(monster):
         for item, odds in self.loot_odds.items():
             self.loot_odds[item] = odds * odds_adjustment
 
-hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1}, name="hydra + brimstone ring")
-hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="hydra + brimstone ring + knives/axes")
+hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="hydra + brimstone ring")
+hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="hydra + brimstone ring + knives&axes")
 krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="kraken + 11 tents")
 kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "kq chain+2h")
 kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="kbd visage + pick")
@@ -402,11 +405,10 @@ ven3 = venenatis(loot_amount={"treasonous ring":0,"dragon pickaxe":1,"dragon 2h 
 cerb = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":1}, name="cerb + 1 smouldering")
 cerb2 = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":3}, name= "cerb +  3 smouldering")
 sire = abyssal_sire(loot_amount = {"bludgeon piece":3, "abyssal dagger":1}, name= "sire + dagger")
-dks = dks(name="dks")
+dks = dkings(name="dks")
 corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysian sigil":1,"spirit shield":3,"holy elixer":3}, name = "corp + 3 blessed shields")
 zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="zulrah + onyx + mutagens")
 zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="zulrah, 2 magic fangs")
-zul3 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":4,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="zulrah, 4 magic fangs")
 night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="nightmare 3 staves")
 vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
 
@@ -414,6 +416,5 @@ temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1
 temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
 temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon + big harpoonfish")
 
-complete_drops = [hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, dks, corp, zul, zul2, zul3, night, vork]
-tempoross_update = [temp, temp1, temp2, tempoross()]
-all_bosses = [nightmare(), barrows(),grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
+complete_drops = [hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, night, vork, temp, temp1, temp2]
+all_bosses = [tempoross(), nightmare(), barrows(),grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
