@@ -1,15 +1,15 @@
-from numpy.lib.function_base import median
-from bosses import all_bosses, complete_drops, tempoross_update
+from bosses import all_bosses, complete_drops
 import concurrent.futures
 import matplotlib
 from collections import Counter
-import multiprocessing
+from multiprocessing import Pool
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
+pool_size = 10
 number_off_completions = 1000000
     
-def calc_average_completion(boss, sample_size):
+def calc_average_completion(boss, sample_size=number_off_completions):
     completions = []
 
     for _ in range(sample_size):
@@ -66,18 +66,11 @@ def createCompletionPlot(boss):
     plt.savefig("images/{}.pdf".format(boss.name, bbox_inches='tight'))
 
 if __name__ == '__main__':
+    bosses = all_bosses + complete_drops
 
-    bosses = all_bosses
     
     for boss in bosses:
         print(boss.name)
 
-    processes = []
-    for boss in bosses:
-        p = multiprocessing.Process(target=createCompletionPlot, args=(boss,))
-        processes.append(p)
-        p.start()
-
-    for process in processes:
-        process.join()
-
+    pool = Pool(processes=pool_size)
+    pool.map(createCompletionPlot, bosses)
