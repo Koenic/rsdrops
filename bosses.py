@@ -1,10 +1,17 @@
+from operator import xor
 import random
+from matplotlib.pyplot import yscale
+import numpy as np
+from numpy.lib.function_base import average, median
+from numpy.linalg import matrix_power
+from scipy.sparse import csc_matrix
+from scipy.sparse import coo_matrix
 
 class monster:
     loot_odds = {}
 
     def __init__(self, loot_tables=None, loot_amount=None, name=None):
-        
+        self.absorbingMatrix = None
         self.name = self.__class__.__name__
         if(loot_amount):
             self.loot_amount = loot_amount
@@ -60,6 +67,65 @@ class monster:
         
         return self.kc, self.loot_gotten
 
+    def convertToMarkovChain(self):
+        nDrops = sum(self.loot_amount.values())
+        nStates = 2 ** nDrops
+        dropArray = [[self.loot_odds[item]] * amount for item, amount in self.loot_amount.items()]
+        # flatten
+        dropArray = [item for sublist in dropArray for item in sublist]
+
+        data = []
+        rowIndex = []
+        colIndex = []
+        for i in range(0,nStates):
+            rowTotal = 0
+            for index, odds in enumerate(dropArray):
+                # odds of going from state i 010b to state 011 (collected the 3rd item) = i+2**(ndrops - dropIndex)
+                # we mirror the state by removing ndrops
+
+                # skip if we already have the drop or we go to an absorbing state
+                if((i >> index) & 1):
+                    continue
+
+                rowTotal += odds
+                # if(i+2**index == nStates - 1):
+                #     continue
+                data += [odds]
+                rowIndex += [i]
+                colIndex += [i+2**index]
+
+            # add the diagonal
+            data += [1-rowTotal]
+            rowIndex += [i]
+            colIndex += [i]
+
+        data = np.array(data)
+        rowIndex = np.array(rowIndex, dtype='int')
+        colIndex = np.array(colIndex, dtype='int')
+        
+        self.absorbingMatrix = coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsc()
+
+    def getAbsorbingMatrixGraph(self):
+        copy = self.absorbingMatrix.copy()
+        (width, _) = copy.shape
+        index = 0
+        finalState = (0,width - 1)
+        y = [copy[finalState]]
+        while(copy[finalState] < 0.9999):
+            copy *= self.absorbingMatrix
+            y += [copy[finalState]]
+        x = [i for i in range(1,len(y)+1)]
+
+        half = next(i[0] for i in enumerate(y) if i[1] > 0.5)
+        
+        y = [(j - y[it-1])*100 for it,j in enumerate(y)]
+        
+        average = sum(xi * yi/100 for xi, yi in zip(x,y))
+        y[0] = self.absorbingMatrix[finalState] * 100
+
+        median = y.index(max(y))
+
+        return x, y, median, half, average
 
 
 #slayer bosses

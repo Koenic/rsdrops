@@ -1,3 +1,4 @@
+from numpy.lib.function_base import median
 from bosses import all_bosses, complete_drops, tempoross_update
 import concurrent.futures
 import matplotlib
@@ -40,16 +41,40 @@ def calc_average_completion(boss, sample_size):
     ax.legend()
     plt.savefig("images/{}_{}.pdf".format(sample_size, boss.name, bbox_inches='tight'))
 
+def createCompletionPlot(boss):
+    boss.convertToMarkovChain()
+    (x,y, median, half, average) = boss.getAbsorbingMatrixGraph()
+    
+    _, ax = plt.subplots()
+    #axis labels
+    ax.set_ylabel('% chance of completion')
+    ax.set_xlabel('kc')
+    
+    #data points
+    ax.plot(x,y, label='boss completion')
+    
+
+    ax.axvline(x=median, color='b', label="Most people complete at {} kc".format(median))
+    ax.axvline(x=half, color='r', label="50% of people complete before {} kc".format(half))
+    ax.axvline(x=average, color='g', label="average completion at {} kc".format(int(average)+1))
+    ax.set_title("odds of completing {}".format(boss.name))
+    ax.legend()
+
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0, right=x[-1])
+
+    plt.savefig("images/{}.pdf".format(boss.name, bbox_inches='tight'))
 
 if __name__ == '__main__':
-    bosses = tempoross_update
 
+    bosses = all_bosses
+    
     for boss in bosses:
         print(boss.name)
 
     processes = []
     for boss in bosses:
-        p = multiprocessing.Process(target=calc_average_completion, args=(boss, number_off_completions,))
+        p = multiprocessing.Process(target=createCompletionPlot, args=(boss,))
         processes.append(p)
         p.start()
 
