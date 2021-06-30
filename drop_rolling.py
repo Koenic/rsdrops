@@ -1,5 +1,4 @@
 from bosses import all_bosses, complete_drops
-import concurrent.futures
 import matplotlib
 from collections import Counter
 from multiprocessing import Pool
@@ -9,7 +8,7 @@ import matplotlib.pyplot as plt
 pool_size = 10
 number_off_completions = 1000000
     
-def calc_average_completion(boss, sample_size=number_off_completions):
+def simulate_average_completion(boss, sample_size=number_off_completions):
     completions = []
 
     for _ in range(sample_size):
@@ -42,8 +41,11 @@ def calc_average_completion(boss, sample_size=number_off_completions):
     plt.savefig("images/{}_{}.pdf".format(sample_size, boss.name, bbox_inches='tight'))
 
 def createCompletionPlot(boss):
+    print(boss.name)
     boss.convertToMarkovChain()
-    (x,y, median, half, average) = boss.getAbsorbingMatrixGraph()
+    print(boss.name, 'created matrix')
+    (x,y, mode, half, average) = boss.getAbsorbingMatrixGraph()
+    print(boss.name, 'created datapoints')
     
     _, ax = plt.subplots()
     #axis labels
@@ -53,11 +55,13 @@ def createCompletionPlot(boss):
     #data points
     ax.plot(x,y, label='boss completion')
     
+    kc_name = boss.kc_name
 
-    ax.axvline(x=median, color='b', label="Most people complete at {} kc".format(median))
-    ax.axvline(x=half, color='r', label="50% of people complete before {} kc".format(half))
-    ax.axvline(x=average, color='g', label="average completion at {} kc".format(int(average)+1))
-    ax.set_title("odds of completing {}".format(boss.name))
+    ax.axvline(x=mode, color='b', label="Most people complete at {} {}".format(mode, kc_name))
+    ax.axvline(x=half, color='r', label="50% of people complete before {} {}".format(half, kc_name))
+    # average is an floating point numer floor + 1
+    ax.axvline(x=average, color='g', label="Average {} at completion: {:.2f}".format(kc_name, average))
+    ax.set_title("Odds of completing {} at any given KC".format(boss.name.replace('_', ' ').capitalize()))
     ax.legend()
 
     ax.set_ylim(bottom=0)
@@ -68,7 +72,6 @@ def createCompletionPlot(boss):
 if __name__ == '__main__':
     bosses = all_bosses + complete_drops
 
-    
     for boss in bosses:
         print(boss.name)
 
