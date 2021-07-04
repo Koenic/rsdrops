@@ -59,7 +59,7 @@ def createCompletionPlot(boss):
 
     ax.axvline(x=mode, color='b', label="Most people complete at {} {}".format(mode, kc_name))
     ax.axvline(x=half, color='r', label="50% of people complete before {} {}".format(half, kc_name))
-    # average is an floating point numer floor + 1
+    # average is an floating point numberpythpo
     ax.axvline(x=average, color='g', label="Average {} at completion: {:.2f}".format(kc_name, average))
     ax.set_title("Odds of completing {} at any given KC".format(boss.name.replace('_', ' ').capitalize()))
     ax.legend()
@@ -67,13 +67,13 @@ def createCompletionPlot(boss):
     ax.set_ylim(bottom=0)
     ax.set_xlim(left=0, right=x[-1])
 
-    plt.savefig("images/{}.pdf".format(boss.name, bbox_inches='tight'))
+    plt.savefig("images/{}.pdf".format(boss.name.strip(), bbox_inches='tight'))
 
 if __name__ == '__main__':
     bosses = all_bosses + complete_drops
 
     for boss in bosses:
-        print(boss.name)
+        print(boss.name.strip())
 
     pool = Pool(processes=pool_size)
     pool.map(createCompletionPlot, bosses)

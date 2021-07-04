@@ -265,12 +265,12 @@ class tempoross(monster):
     kc_name = 'loot rolls'
 
 class corrupted_gauntlet(monster):
-    loot_odds = {"blade of saeldor":1/400, "crystal armour seed":1/50}
-    loot_amount = {"blade of saeldor":1,"crystal armour seed":1}
+    loot_odds = {"enhanced crystal weapon seed":1/400, "crystal armour seed":1/50}
+    loot_amount = {"enhanced crystal weapon seed":1,"crystal armour seed":1}
 
 class gauntlet(monster):
-    loot_odds = {"blade of saeldor":1/2000, "crystal armour seed":1/50}
-    loot_amount = {"blade of saeldor":1,"crystal armour seed":1}
+    loot_odds = {"enhanced crystal weapon seed":1/2000, "crystal armour seed":1/50}
+    loot_amount = {"enhanced crystal weapon seed":1,"crystal armour seed":1}
 
 class dagannoth_rex(monster):
     loot_odds = {"berserker ring":1/128, "warrior ring": 1/128, "dragon axe": 1/128}
@@ -361,8 +361,8 @@ class kree_arra(gwd):
     loot_amount = {"armadyl helmet":1,"armadyl chestplate":1, "armadyl chainskirt":1, "armadyl hilt":1,"godsword shard 1":0,"godsword shard 2":0,"godsword shard 3":0}
 
 class nightmare(monster):
-    loot_odds = {"inquisitor's great helm":1/600,"inquisitor's hauberk":1/600,"inquisitor's plateskirt":1/600, "inquisitor's mace":1/1200, "nightmare staff":1/400}
-    secondary_odds = {"eldritch orb":1/1800, "harmonised orb":1/1800,"volatile orb":1/1800}
+    loot_odds = {"inquisitor's great helm":1/960,"inquisitor's hauberk":1/960,"inquisitor's plateskirt":1/960, "inquisitor's mace":1/1920, "nightmare staff":1/640}
+    secondary_odds = {"eldritch orb":1/2880, "harmonised orb":1/2880,"volatile orb":1/2880}
     loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":1, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}
 
     def __init__(self, teamsize=1, **kwargs):
@@ -385,6 +385,16 @@ class nightmare(monster):
                 loot += [l]
 
         return loot
+
+class phosanis_nightmare(monster):
+    loot_odds = {"inquisitor's great helm":1/960,"inquisitor's hauberk":1/960,"inquisitor's plateskirt":1/960, "inquisitor's mace":1/1920, "nightmare staff":1/640}
+    secondary_odds = {"eldritch orb":1/2880, "harmonised orb":1/2880,"volatile orb":1/2880}
+    loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":1, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}
+    
+    def __init__(self, teamsize=1, **kwargs):
+        kwargs["loot_tables"] = [self.secondary_odds]
+        super().__init__(**kwargs)
+        self.teamsize = teamsize
 
 class barrows(monster):
     loot_odds = {"dharock's greataxe":1/2448,"dharock's helm":1/2448,"dharock's platelegs":1/2448,"dharock's platebody":1/2448,
@@ -468,13 +478,16 @@ corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysi
 zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="zulrah + onyx + mutagens")
 zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="zulrah, 2 magic fangs")
 night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="nightmare 3 staves")
+pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="phosanis nightmare 3 staves")
+pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq + mace")
+pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq, no mace")
 vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
-cg = corrupted_gauntlet(loot_amount={"blade of saeldor":2, "crystal armour seed":6}, name="Corrupted gauntlet 2 enhanced weapon seeds, 6 armour crystals")
+cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet 2 enhanced weapon seeds, 6 armour crystals")
 
 
 temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross + big harpoonfish")
 temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
 temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross + dragon harpoon + big harpoonfish")
 
-complete_drops = [cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, night, vork, temp, temp1, temp2]
-all_bosses = [tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
+complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2]
+all_bosses = [phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
