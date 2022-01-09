@@ -1,3 +1,4 @@
+from logging import error
 from bosses import all_bosses, complete_drops
 import matplotlib
 from collections import Counter
@@ -41,33 +42,51 @@ def simulate_average_completion(boss, sample_size=number_off_completions):
     plt.savefig("images/{}_{}.pdf".format(sample_size, boss.name, bbox_inches='tight'))
 
 def createCompletionPlot(boss):
-    print(boss.name)
+    # print(boss.name)
     boss.convertToMarkovChain()
-    print(boss.name, 'created matrix')
-    (x,y, mode, half, average) = boss.getAbsorbingMatrixGraph()
-    print(boss.name, 'created datapoints')
+    # print(boss.name, 'created matrix')
+    (x, cdf, pdf, mode, half, average) = boss.getAbsorbingMatrixGraph()
+    # print(boss.name, 'created datapoints')
     
-    _, ax = plt.subplots()
+    _, (ax) = plt.subplots()
     #axis labels
-    ax.set_ylabel('% chance of completion')
     ax.set_xlabel('kc')
+
+    ax2 = ax.twinx()
+    legend = ax.twinx()
+    legend.axes.yaxis.set_visible(False)
     
     #data points
-    ax.plot(x,y, label='boss completion')
+    whitespace = 1.02
+
+    ax2.plot(x,cdf, label='cdf', color='tab:red')
+    ax2.tick_params(axis='y', labelcolor='tab:red')
+    ax2.set_ylabel('% chance to have completed', color='tab:red')
+    ax2.set_ylim(bottom=0, top=100 * whitespace)
+    ax.plot(x,pdf, label='pdf', color='tab:blue')
+    ax.set_ylabel('% chance to complete at kc', color='tab:blue')
+    ax.tick_params(axis='y', labelcolor='tab:blue')
+    ax.set_ylim(bottom=0, top=max(pdf) * whitespace)
     
     kc_name = boss.kc_name
 
-    ax.axvline(x=mode, color='b', label="Most people complete at {} {}".format(mode, kc_name))
-    ax.axvline(x=half, color='r', label="50% of people complete before {} {}".format(half, kc_name))
-    # average is an floating point numberpythpo
-    ax.axvline(x=average, color='g', label="Average {} at completion: {:.2f}".format(kc_name, average))
-    ax.set_title("Odds of completing {} at any given KC".format(boss.name.replace('_', ' ').capitalize()))
-    ax.legend()
+    try:
+        if(mode < len(x)):
+            legend.axvline(x=mode, ymax=(max(cdf[mode]/max(cdf), pdf[mode]/max(pdf)) / whitespace), linestyle='--', color="gray", label=f"Mode {mode} {kc_name}")
+        if(half < len(x)):
+            legend.axvline(x=half, ymax=(max(cdf[half]/max(cdf), pdf[half]/max(pdf)) / whitespace), linestyle='-', color="gray", label=f"Median {half} {kc_name}")
+        # average is an floating point number
+        if(int(average) < len(x)):
+            legend.axvline(x=average, ymax=(max(cdf[int(average)]/max(cdf), pdf[int(average)]/max(pdf)) / whitespace), linestyle='-.', color="gray", label=f"Mean: {kc_name} {average:.2f}")
+    except(error):
+        print(boss.name, mode)
+    
+    ax.set_title(f"Chance to complete {boss.name.replace('_', ' ').capitalize()}")
+    legend.legend(loc='center right')
 
-    ax.set_ylim(bottom=0)
     ax.set_xlim(left=0, right=x[-1])
 
-    plt.savefig("images/{}.pdf".format(boss.name.strip(), bbox_inches='tight'))
+    plt.savefig(f"images/{boss.name.strip()}.pdf", bbox_inches='tight')
 
 if __name__ == '__main__':
     bosses = all_bosses + complete_drops

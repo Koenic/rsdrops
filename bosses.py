@@ -112,7 +112,6 @@ class monster:
         return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsc()
         
 
-
     def convertToMarkovChain(self):
         nDrops = sum(self.loot_amount.values())
         nStates = 2 ** nDrops
@@ -148,20 +147,24 @@ class monster:
 
         # y index is [kc-1] compensate for that
         half = next(i[0] for i in enumerate(y) if i[1] > 0.5) + 1
-        
-        y = [(j - y[it-1])*100 for it,j in enumerate(y)]
-        
-        average = sum(xi * yi/100 for xi, yi in zip(x,y)) + 1
-        y[0] = self.absorbingMatrix[finalState] * 100
 
-        mode = y.index(max(y)) + 1
+        # convert to pdf
+        pdf = [(j - y[it-1])*100 for it,j in enumerate(y)]
+        pdf[0] = self.absorbingMatrix[finalState] * 100
 
-        cutoff = max(y)
+        average = sum(xi * yi/100 for xi, yi in zip(x,pdf))
+        mode = pdf.index(max(pdf)) + 1
+
         # limit the size of the graph
-        x = [x1 for [x1,y1] in zip(x,y) if y1 > cutoff/100]
-        y = [y1 for y1 in y if y1 > cutoff/100 ]
+        cutoff = 0.999
+        x = [x1 for it, [x1,y1] in enumerate(zip(x,y)) if y1 < cutoff or it == 0]
+        pdf = [pdf for it, [pdf,y1] in enumerate(zip(pdf,y)) if y1 < cutoff or it == 0]
+        y = [y1 * 100 for it, y1 in enumerate(y) if y1 < cutoff or it == 0]
 
-        return x, y, mode, half, average
+        if(len(x) == 1):
+            print(self.name)
+
+        return x, y, pdf, mode, half, average
 
 
 #slayer bosses
@@ -409,8 +412,16 @@ class phosanis_nightmare(monster):
         self.teamsize = teamsize
 
 class nex(monster):
-    loot_odds = {"Zaryte vambraces":1/800,"Torva full helm (damaged)":1/1200,"Torva platebody (damaged)":1/1200, "Torva platelegs (damaged)":1/1200, "Nihil horn":1/1200, "Ancient hilt":1/2400}
+    loot_odds = {"Zaryte vambraces":1/200,"Torva full helm (damaged)":1/240,"Torva platebody (damaged)":1/240, "Torva platelegs (damaged)":1/240, "Nihil horn":1/240, "Ancient hilt":1/480}
     loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}
+
+
+    def __init__(self, teamsize=1, **kwargs):
+        self.loot_odds = self.loot_odds.copy()
+        for drop in self.loot_odds:
+            self.loot_odds[drop] /= teamsize
+        super().__init__(**kwargs)
+        self.teamsize = teamsize
 
 class barrows(monster):
     loot_odds = {"dharock's greataxe":1/2448,"dharock's helm":1/2448,"dharock's platelegs":1/2448,"dharock's platebody":1/2448,
@@ -499,13 +510,16 @@ pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inqui
 pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq, no mace")
 vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
 cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet 2 enhanced weapon seeds, 6 armour crystals")
-nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "nex, torva + vambraces + nihil")
-nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, torva + vambraces")
-nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, just torva")
 
 temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross + big harpoonfish")
 temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
 temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross + dragon harpoon + big harpoonfish")
 
-complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces]
+nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "nex, torva + vambraces + nihil")
+nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, torva + vambraces")
+nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, just torva")
+nex5man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=5, name="nex, 5 man")
+
+
+complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex5man]
 all_bosses = [nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
