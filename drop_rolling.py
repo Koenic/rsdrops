@@ -42,11 +42,11 @@ def simulate_average_completion(boss, sample_size=number_off_completions):
     plt.savefig("images/{}_{}.pdf".format(sample_size, boss.name, bbox_inches='tight'))
 
 def createCompletionPlot(boss):
-    # print(boss.name)
+    print(boss.name)
     boss.convertToMarkovChain()
-    # print(boss.name, 'created matrix')
+    print(boss.name, 'created matrix')
     (x, cdf, pdf, mode, half, average) = boss.getAbsorbingMatrixGraph()
-    # print(boss.name, 'created datapoints')
+    print(boss.name, 'created datapoints')
     
     _, (ax) = plt.subplots()
     #axis labels
