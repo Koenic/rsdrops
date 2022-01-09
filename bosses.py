@@ -140,9 +140,10 @@ class monster:
         (width, _) = copy.shape
         finalState = (0,width - 1)
         y = [copy[finalState]]
-        while(copy[finalState] < 0.9999):
+        while(copy[finalState] < 0.999999):
             copy *= self.absorbingMatrix
             y += [copy[finalState]]
+
         x = [i for i in range(1,len(y)+1)]
 
         # y index is [kc-1] compensate for that
@@ -150,10 +151,14 @@ class monster:
         
         y = [(j - y[it-1])*100 for it,j in enumerate(y)]
         
-        average = sum(xi * yi/100 for xi, yi in zip(x,y))
+        average = sum(xi * yi/100 for xi, yi in zip(x,y)) + 1
         y[0] = self.absorbingMatrix[finalState] * 100
 
         mode = y.index(max(y)) + 1
+
+        # limit the size of the graph
+        x = [x1 for [x1,y1] in zip(x,y) if y1 > mode/100]
+        y = [y1 for y1 in y if y1 > mode/100 ]
 
         return x, y, mode, half, average
 
@@ -315,8 +320,14 @@ class zulrah(monster):
         return super().roll_loot() + super().roll_loot()
 
 class vorkath(monster):
-    loot_odds = {"dragonbone necklace":1/1000,"wyvern visage":1/5000,"draconic visage":1/5000}
+    loot_odds = {"dragonbone necklace":1/1000}
+    secondary_odds = {"draconic visage":1/5000}
+    tertiary_odds = {"wyvern visage":1/5000}
     loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":0}
+    
+    def __init__(self, **kwargs):
+        kwargs["loot_tables"] = [self.secondary_odds, self.tertiary_odds]
+        super().__init__(**kwargs)
 
 class corporeal_beast(monster):
     loot_odds = {"arcane sigil":1/1365,"spectral sigil":1/1365,"elysian sigil":1/4095,"spirit shield":8/512,"holy elixer":3/512}
@@ -395,6 +406,10 @@ class phosanis_nightmare(monster):
         kwargs["loot_tables"] = [self.secondary_odds]
         super().__init__(**kwargs)
         self.teamsize = teamsize
+
+class nex(monster):
+    loot_odds = {"Zaryte vambraces":1/800,"Torva full helm (damaged)":1/1200,"Torva platebody (damaged)":1/1200, "Torva platelegs (damaged)":1/1200, "Nihil horn":1/1200, "Ancient hilt":1/2400}
+    loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}
 
 class barrows(monster):
     loot_odds = {"dharock's greataxe":1/2448,"dharock's helm":1/2448,"dharock's platelegs":1/2448,"dharock's platebody":1/2448,
@@ -480,14 +495,16 @@ zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visag
 night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="nightmare 3 staves")
 pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="phosanis nightmare 3 staves")
 pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq + mace")
-pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq, no mace")
+pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq, no mace")
 vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
 cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet 2 enhanced weapon seeds, 6 armour crystals")
-
+nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "nex, torva + vambraces + nihil")
+nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, torva + vambraces")
+nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, just torva")
 
 temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross + big harpoonfish")
 temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
 temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross + dragon harpoon + big harpoonfish")
 
-complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2]
-all_bosses = [phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
+complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces]
+all_bosses = [nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
