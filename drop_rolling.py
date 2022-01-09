@@ -72,8 +72,5 @@ def createCompletionPlot(boss):
 if __name__ == '__main__':
     bosses = all_bosses + complete_drops
 
-    for boss in bosses:
-        print(boss.name.strip())
-
     pool = Pool(processes=pool_size)
     pool.map(createCompletionPlot, bosses)

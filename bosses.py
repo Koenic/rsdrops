@@ -156,9 +156,10 @@ class monster:
 
         mode = y.index(max(y)) + 1
 
+        cutoff = max(y)
         # limit the size of the graph
-        x = [x1 for [x1,y1] in zip(x,y) if y1 > mode/100]
-        y = [y1 for y1 in y if y1 > mode/100 ]
+        x = [x1 for [x1,y1] in zip(x,y) if y1 > cutoff/100]
+        y = [y1 for y1 in y if y1 > cutoff/100 ]
 
         return x, y, mode, half, average
 
