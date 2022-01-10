@@ -459,20 +459,18 @@ class barrows(monster):
 
 class theatre_of_blood(monster):
     #https://twitter.com/JagexKieren/status/1145376451446751232/photo/1
-    team_size = 4
-    max_points = 68
-    death_point_cost = 4
     base_odds = 1/9.1
-    personal_points = 17
-    total_deaths = 0
-
-    total_points = max_points - death_point_cost * total_deaths
-    odds_adjustment = base_odds * total_points/max_points * personal_points/total_points
 
     loot_odds = {"scythe of vitur":1/19, "grazi rapier":2/19,"sanguinesti staff":2/19, "justiciar faceguard":2/19, "justiciar chestguard":2/19, "justiciar legguard":2/19, "avernic hilt":8/19}
-    for drop in loot_odds:
-        loot_odds[drop] *= odds_adjustment
+
     loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}
+
+    def __init__(self, teamsize=1, **kwargs):
+        self.loot_odds = self.loot_odds.copy()
+        for drop in self.loot_odds:
+            self.loot_odds[drop] *= self.base_odds / teamsize
+        super().__init__(**kwargs)
+        self.teamsize = teamsize
 
 
 class chambers_of_xeric(monster):
@@ -489,37 +487,39 @@ class chambers_of_xeric(monster):
         loot_odds[drop] *= odds_adjustment
     loot_amount = {"dexterous prayer scroll":1,"arcane prayer scroll":1,"twisted buckler":1,"dragon hunter crossbow":1,"dinh's bulwark":1,"ancestral hat":1,"ancestral robe top":1,"ancestral robe bottom":1, "dragon claws":1,"elder maul":1,"kodai insignia":1,"twisted bow":1}
 
-hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="hydra + brimstone ring")
-hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="hydra + brimstone ring + knives&axes")
-krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="kraken + 11 tents")
-kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "kq chain+2h")
-kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="kbd visage + pick")
+hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="Alchemical Hydra + brimstone ring")
+hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="Alchemical Hydra + brimstone ring + knives&axes")
+krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="Cave Kraken + 11 tents")
+kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "Kalphite Queen chain+2h")
+kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="King Black Dragon, visage + pick")
 ven = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":1}, name="Wildy boss, ring + pick + 2h")
 ven2 = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss, ring + pick")
 ven3 = venenatis(loot_amount={"treasonous ring":0,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss just the d pick")
-cerb = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":1}, name="cerb + 1 smouldering")
-cerb2 = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":3}, name= "cerb + 3 smouldering")
-sire = abyssal_sire(loot_amount = {"bludgeon piece":3, "abyssal dagger":1}, name= "sire + dagger")
-dks = dkings(name="dks")
-corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysian sigil":1,"spirit shield":3,"holy elixer":3}, name = "corp + 3 blessed shields")
-zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="zulrah + onyx + mutagens")
-zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="zulrah, 2 magic fangs")
-night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="nightmare 3 staves")
-pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="phosanis nightmare 3 staves")
-pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq + mace")
-pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="phosanis nightmare full inq, no mace")
-vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="vork both visages")
-cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet 2 enhanced weapon seeds, 6 armour crystals")
+cerb = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":1}, name="Cerberus + 1 smouldering")
+cerb2 = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":3}, name= "Cerberus + 3 smouldering")
+sire = abyssal_sire(loot_amount = {"bludgeon piece":3, "abyssal dagger":1}, name= "Abyssal Sire + dagger")
+dks = dkings(name="Dagannoth Kings")
+corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysian sigil":1,"spirit shield":3,"holy elixer":3}, name = "Corporeal Beast + 3 blessed shields")
+zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="Zulrah + onyx + mutagens")
+zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="Zulrah, 2 magic fangs")
+night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Nightmare 3 staves")
+pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Phosanis nightmare, 3 staves")
+pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq + mace")
+pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq, no mace")
+vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="Vorkath, both visages")
+cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet, 2 enhanced weapon seeds, 6 armour crystals")
+cg1seed = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":1, "crystal armour seed":6}, name="Corrupted gauntlet, 1 enhanced weapon seeds, 6 armour crystals")
 
-temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross + big harpoonfish")
-temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross + dragon harpoon")
-temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross + dragon harpoon + big harpoonfish")
+temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross, big harpoonfish")
+temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross, dragon harpoon")
+temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross, dragon harpoon + big harpoonfish")
 
-nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "nex, torva + vambraces + nihil")
-nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, torva + vambraces")
-nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "nex, just torva")
-nex5man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=5, name="nex, 5 man")
+nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "Nex, torva + vambraces + nihil")
+nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, torva + vambraces")
+nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, just torva")
+nex5man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=5, name="nex, (assuming 5 man)")
 
+tob3man = theatre_of_blood(name="Theatre of blood", teamsize=3)
 
-complete_drops = [pnightjustinq, pnightinq, cg, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex5man]
+complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex5man]
 all_bosses = [nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]

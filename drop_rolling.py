@@ -72,12 +72,12 @@ def createCompletionPlot(boss):
 
     try:
         if(mode < len(x)):
-            legend.axvline(x=mode, ymax=(max(cdf[mode]/max(cdf), pdf[mode]/max(pdf)) / whitespace), linestyle='--', color="gray", label=f"Mode {mode} {kc_name}")
+            legend.axvline(x=mode, ymax=(max(cdf[mode]/max(cdf), pdf[mode]/max(pdf)) / whitespace), linestyle='--', color="gray", label=f"Mode: {mode} {kc_name}")
         if(half < len(x)):
-            legend.axvline(x=half, ymax=(max(cdf[half]/max(cdf), pdf[half]/max(pdf)) / whitespace), linestyle='-', color="gray", label=f"Median {half} {kc_name}")
+            legend.axvline(x=half, ymax=(max(cdf[half]/max(cdf), pdf[half]/max(pdf)) / whitespace), linestyle='-', color="gray", label=f"Median: {half} {kc_name}")
         # average is an floating point number
         if(int(average) < len(x)):
-            legend.axvline(x=average, ymax=(max(cdf[int(average)]/max(cdf), pdf[int(average)]/max(pdf)) / whitespace), linestyle='-.', color="gray", label=f"Mean: {kc_name} {average:.2f}")
+            legend.axvline(x=average, ymax=(max(cdf[int(average)]/max(cdf), pdf[int(average)]/max(pdf)) / whitespace), linestyle='-.', color="gray", label=f"Mean: {average:.2f} {kc_name}")
     except(error):
         print(boss.name, mode)
     
@@ -86,7 +86,7 @@ def createCompletionPlot(boss):
 
     ax.set_xlim(left=0, right=x[-1])
 
-    plt.savefig(f"images/{boss.name.strip()}.pdf", bbox_inches='tight')
+    plt.savefig(f"images/{boss.name.strip().lower()}.pdf", bbox_inches='tight')
 
 if __name__ == '__main__':
     bosses = all_bosses + complete_drops
