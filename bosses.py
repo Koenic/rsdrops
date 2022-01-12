@@ -1,5 +1,7 @@
-from operator import xor
+from operator import xor, mul
+from functools import reduce
 import random
+import math
 from matplotlib.pyplot import yscale
 import numpy as np
 from numpy.lib.function_base import average, median
@@ -457,9 +459,62 @@ class barrows(monster):
 
         return loot
 
+    def convertToMarkovChain(self):
+        self.absorbingMatrix = self.constructMatrix()
+
+    def constructMatrix(self):
+        # barrows has too many items, since they all have the same odds we can model them with an index of how many items we have. 
+        nStates = 25
+        data = []
+        rowIndex = []
+        colIndex = []
+        for i in range(0,nStates):
+            rowTotal = 0
+
+            for j in range(1, min(8, nStates - i)):
+                odds = self.itemOdds(i, j)
+                data += [odds]
+                rowTotal += odds
+                rowIndex += [i]
+                colIndex += [i + j]
+
+            # add the diagonal
+            data += [1-rowTotal]
+            rowIndex += [i]
+            colIndex += [i]
+        
+        data = np.array(data)
+        rowIndex = np.array(rowIndex, dtype='int')
+        colIndex = np.array(colIndex, dtype='int')
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsc()
+
+    def itemOdds(self, gotten, new):
+        odds = 0
+
+        for i in range(new,8):
+            odds += math.comb(7,i) * (1/102)**i * (101/102)**(7-i) * math.comb(i, new) * reduce(mul, [((24 - gotten - j) / (24 - j)) for j in range(new)], 1) * reduce(mul, [(1 - (24 - new - gotten - j) / (24 - new - j)) for j in range(i - new)], 1)
+        return odds
+
+
 class theatre_of_blood(monster):
     #https://twitter.com/JagexKieren/status/1145376451446751232/photo/1
     base_odds = 1/9.1
+
+    loot_odds = {"scythe of vitur":1/19, "grazi rapier":2/19,"sanguinesti staff":2/19, "justiciar faceguard":2/19, "justiciar chestguard":2/19, "justiciar legguard":2/19, "avernic hilt":8/19}
+
+    loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}
+
+    def __init__(self, teamsize=1, **kwargs):
+        self.loot_odds = self.loot_odds.copy()
+        for drop in self.loot_odds:
+            self.loot_odds[drop] *= (self.base_odds / teamsize)
+        super().__init__(**kwargs)
+        self.teamsize = teamsize
+
+
+class theatre_of_blood_hm(monster):
+    # assumption based on hearsay
+    base_odds = 1/7
 
     loot_odds = {"scythe of vitur":1/19, "grazi rapier":2/19,"sanguinesti staff":2/19, "justiciar faceguard":2/19, "justiciar chestguard":2/19, "justiciar legguard":2/19, "avernic hilt":8/19}
 
@@ -522,4 +577,4 @@ nex5man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,
 tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
 
 complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex5man, tob3man]
-all_bosses = [nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric()]
+all_bosses = [barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hm()]
