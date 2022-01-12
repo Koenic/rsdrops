@@ -89,7 +89,7 @@ def createCompletionPlot(boss):
     plt.savefig(f"images/{boss.name.strip().lower()}.pdf", bbox_inches='tight')
 
 if __name__ == '__main__':
-    bosses = [all_bosses + complete_drops]
+    bosses = all_bosses + complete_drops
 
     pool = Pool(processes=pool_size)
     pool.map(createCompletionPlot, bosses)
