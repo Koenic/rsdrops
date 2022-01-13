@@ -414,7 +414,7 @@ class phosanis_nightmare(monster):
         self.teamsize = teamsize
 
 class nex(monster):
-    loot_odds = {"Zaryte vambraces":1/200,"Torva full helm (damaged)":1/240,"Torva platebody (damaged)":1/240, "Torva platelegs (damaged)":1/240, "Nihil horn":1/240, "Ancient hilt":1/480}
+    loot_odds = {"Zaryte vambraces":1/240,"Torva full helm (damaged)":1/360,"Torva platebody (damaged)":1/360, "Torva platelegs (damaged)":1/360, "Nihil horn":1/360, "Ancient hilt":1/720}
     loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}
 
 
