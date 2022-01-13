@@ -378,8 +378,8 @@ class kree_arra(gwd):
     loot_amount = {"armadyl helmet":1,"armadyl chestplate":1, "armadyl chainskirt":1, "armadyl hilt":1,"godsword shard 1":0,"godsword shard 2":0,"godsword shard 3":0}
 
 class nightmare(monster):
-    loot_odds = {"inquisitor's great helm":1/960,"inquisitor's hauberk":1/960,"inquisitor's plateskirt":1/960, "inquisitor's mace":1/1920, "nightmare staff":1/640}
-    secondary_odds = {"eldritch orb":1/2880, "harmonised orb":1/2880,"volatile orb":1/2880}
+    loot_odds = {"inquisitor's great helm":1/600,"inquisitor's hauberk":1/600,"inquisitor's plateskirt":1/600, "inquisitor's mace":1/1200, "nightmare staff":1/400}
+    secondary_odds = {"eldritch orb":1/1800, "harmonised orb":1/1800,"volatile orb":1/1800}
     loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":1, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}
 
     def __init__(self, teamsize=1, **kwargs):
@@ -404,8 +404,8 @@ class nightmare(monster):
         return loot
 
 class phosanis_nightmare(monster):
-    loot_odds = {"inquisitor's great helm":1/960,"inquisitor's hauberk":1/960,"inquisitor's plateskirt":1/960, "inquisitor's mace":1/1920, "nightmare staff":1/640}
-    secondary_odds = {"eldritch orb":1/2880, "harmonised orb":1/2880,"volatile orb":1/2880}
+    loot_odds = {"inquisitor's great helm":1/1000,"inquisitor's hauberk":1/1000,"inquisitor's plateskirt":1/1000, "inquisitor's mace":1/2000, "nightmare staff":1/667}
+    secondary_odds = {"eldritch orb":1/3000, "harmonised orb":1/3000,"volatile orb":1/3000}
     loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":1, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}
     
     def __init__(self, teamsize=1, **kwargs):
@@ -577,5 +577,5 @@ nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,
 
 tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
 
-complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man]
+complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man, nex8man]
 all_bosses = [barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode()]
