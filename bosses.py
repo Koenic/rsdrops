@@ -414,7 +414,7 @@ class phosanis_nightmare(monster):
         self.teamsize = teamsize
 
 class nex(monster):
-    loot_odds = {"Zaryte vambraces":1/240,"Torva full helm (damaged)":1/360,"Torva platebody (damaged)":1/360, "Torva platelegs (damaged)":1/360, "Nihil horn":1/360, "Ancient hilt":1/720}
+    loot_odds = {"Zaryte vambraces":1/212,"Torva full helm (damaged)":1/318,"Torva platebody (damaged)":1/318, "Torva platelegs (damaged)":1/318, "Nihil horn":1/318, "Ancient hilt":1/636}
     loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}
 
 
@@ -572,9 +572,10 @@ temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":
 nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "Nex, torva + vambraces + nihil")
 nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, torva + vambraces")
 nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, just torva")
-nex5man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=5, name="nex, (assuming 5 man)")
+nex6man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=6, name="nex, (assuming 6 man)")
+nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=8, name="nex, (assuming 8 man)")
 
 tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
 
-complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex5man, tob3man]
+complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man]
 all_bosses = [barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode()]

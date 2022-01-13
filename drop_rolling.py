@@ -1,5 +1,5 @@
 from logging import error
-from bosses import all_bosses, complete_drops
+from bosses import all_bosses, complete_drops, nex8man
 import matplotlib
 from collections import Counter
 from multiprocessing import Pool
@@ -89,7 +89,8 @@ def createCompletionPlot(boss):
     plt.savefig(f"images/{boss.name.strip().lower()}.pdf", bbox_inches='tight')
 
 if __name__ == '__main__':
-    bosses = all_bosses + complete_drops
+    # bosses = all_bosses + complete_drops
 
-    pool = Pool(processes=pool_size)
-    pool.map(createCompletionPlot, bosses)
+    createCompletionPlot(nex8man)
+    # pool = Pool(processes=pool_size)
+    # pool.map(createCompletionPlot, bosses)
