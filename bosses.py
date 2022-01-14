@@ -159,6 +159,7 @@ class monster:
 
         # limit the size of the graph
         cutoff = 0.999
+
         x = [x1 for it, [x1,y1] in enumerate(zip(x,y)) if y1 < cutoff or it == 0]
         pdf = [pdf for it, [pdf,y1] in enumerate(zip(pdf,y)) if y1 < cutoff or it == 0]
         y = [y1 * 100 for it, y1 in enumerate(y) if y1 < cutoff or it == 0]
@@ -328,8 +329,8 @@ class zulrah(monster):
 class vorkath(monster):
     loot_odds = {"dragonbone necklace":1/1000}
     secondary_odds = {"draconic visage":1/5000}
-    tertiary_odds = {"wyvern visage":1/5000}
-    loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":0}
+    tertiary_odds = {"skeletal visage":1/5000}
+    loot_amount = {"dragonbone necklace":1,"skeletal visage":1,"draconic visage":0}
     
     def __init__(self, **kwargs):
         kwargs["loot_tables"] = [self.secondary_odds, self.tertiary_odds]
@@ -561,7 +562,7 @@ night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's haube
 pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Phosanis nightmare, 3 staves")
 pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq + mace")
 pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq, no mace")
-vork = vorkath(loot_amount = {"dragonbone necklace":1,"wyvern visage":1,"draconic visage":1}, name="Vorkath, both visages")
+vork = vorkath(loot_amount = {"dragonbone necklace":1,"skeletal visage":1,"draconic visage":1}, name="Vorkath, both visages")
 cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet, 2 enhanced weapon seeds, 6 armour crystals")
 cg1seed = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":1, "crystal armour seed":6}, name="Corrupted gauntlet, 1 enhanced weapon seeds, 6 armour crystals")
 
@@ -576,6 +577,7 @@ nex6man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,
 nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=8, name="nex, (assuming 8 man)")
 
 tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
+zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
 
 complete_drops = [pnightjustinq, pnightinq, cg, cg1seed, hydra, hydra2, krak, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, pnight, night, vork, temp, temp1, temp2, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man, nex8man]
 all_bosses = [barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode()]
