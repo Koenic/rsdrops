@@ -543,10 +543,16 @@ class chambers_of_xeric(monster):
         loot_odds[drop] *= odds_adjustment
     loot_amount = {"dexterous prayer scroll":1,"arcane prayer scroll":1,"twisted buckler":1,"dragon hunter crossbow":1,"dinh's bulwark":1,"ancestral hat":1,"ancestral robe top":1,"ancestral robe bottom":1, "dragon claws":1,"elder maul":1,"kodai insignia":1,"twisted bow":1}
 
+
+class chaos_elemental(monster):
+    loot_odds = {"Dragon pickaxe":1/256,"Dragon 2h sword":20/69}
+    loot_amount = {"Dragon pickaxe":0, "Dragon 2h sword":0}
+
 hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="Alchemical Hydra + brimstone ring")
 hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="Alchemical Hydra + brimstone ring + knives&axes")
 krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="Cave Kraken + 11 tents")
 kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "Kalphite Queen chain+2h")
+ce = chaos_elemental(loot_amount = {"Dragon pickaxe":1, "Dragon 2h sword":0}, name="Chaos Elemental dpick")
 kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="King Black Dragon, visage + pick")
 ven = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":1}, name="Wildy boss, ring + pick + 2h")
 ven2 = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss, ring + pick")
@@ -579,5 +585,6 @@ nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,
 tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
 zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
 
-complete_drops = [temp, temp1, temp2, pnightjustinq, pnightinq, pnight, krak, cg, cg1seed, hydra, hydra2, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, night, vork, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man, nex8man, zalcano3tool]
-all_bosses = [theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode(), barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra()]
+
+complete_drops = [temp, temp1, temp2, pnightjustinq, pnightinq, pnight, krak, cg, cg1seed, hydra, hydra2, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, night, vork, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man, nex8man, zalcano3tool, ce]
+all_bosses = [theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode(), barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), chaos_elemental()]
