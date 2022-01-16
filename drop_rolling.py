@@ -1,12 +1,12 @@
-from logging import error
-from bosses import all_bosses, complete_drops
+from bosses import abyssal_sire, all_bosses, complete_drops
+import os
 import matplotlib
 from collections import Counter
 from multiprocessing import Pool
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-pool_size = 10
+pool_size = 4
 number_off_completions = 1000000
     
 def simulate_average_completion(boss, sample_size=number_off_completions):
@@ -43,14 +43,28 @@ def simulate_average_completion(boss, sample_size=number_off_completions):
 
 def createCompletionPlot(boss):
     print(boss.name)
-    boss.convertToMarkovChain()
+    if not boss.convertToMarkovChain():
+        print(boss.name, 'State space too large')
+        return
     print(boss.name, 'created matrix')
-    (x, cdf, pdf, mode, half, average) = boss.getAbsorbingMatrixGraph()
+    (x, cdf, pdf, mode, half, average, xcutoff) = boss.getAbsorbingMatrixGraph()
     print(boss.name, 'created datapoints')
+
+    
+    lootstring = ''
+    count = 0
+    items = [f"{item}: {amount}" for item, amount in boss.loot_amount.items() if amount > 0]
+    for it,part in enumerate(items):
+        lootstring = f"{lootstring} {part}{', ' if it < len(items) - 1 else ''}"
+        count += len(part)
+        if count >= 70:
+            lootstring = f"{lootstring}\n"
+            count = 0
     
     _, (ax) = plt.subplots()
+    kc_name = boss.kc_name
     #axis labels
-    ax.set_xlabel('kc')
+    ax.set_xlabel(f"{kc_name}\n\n{kc_name} it takes to get:\n {lootstring}")
 
     ax2 = ax.twinx()
     legend = ax.twinx()
@@ -65,31 +79,36 @@ def createCompletionPlot(boss):
     ax2.set_ylim(bottom=0, top=100 * whitespace)
     ax.plot(x,pdf, label='pdf', color='tab:blue')
     ax.set_ylabel('% chance to complete at kc', color='tab:blue')
-    ax.tick_params(axis='y', labelcolor='tab:blue')
-    ax.set_ylim(bottom=0, top=max(pdf) * whitespace)
-    
-    kc_name = boss.kc_name
 
     try:
-        if(mode < len(x)):
-            legend.axvline(x=mode, ymax=(max(cdf[mode]/max(cdf), pdf[mode]/max(pdf)) / whitespace), linestyle='--', color="gray", label=f"Mode: {mode} {kc_name}")
-        if(half < len(x)):
-            legend.axvline(x=half, ymax=(max(cdf[half]/max(cdf), pdf[half]/max(pdf)) / whitespace), linestyle='-', color="gray", label=f"Median: {half} {kc_name}")
+        ax.tick_params(axis='y', labelcolor='tab:blue')
+        ax.set_ylim(bottom=0, top=max(pdf) * whitespace)
+    
+        if(mode - xcutoff < len(x)):
+            legend.axvline(x=mode, ymax=(max(cdf[mode - xcutoff]/max(cdf), pdf[mode - xcutoff]/max(pdf)) / whitespace), linestyle='--', color="gray", label=f"Mode: {mode} {kc_name}")
+        if(half - xcutoff< len(x)):
+            legend.axvline(x=half, ymax=(max(cdf[half - xcutoff]/max(cdf), pdf[half - xcutoff]/max(pdf)) / whitespace), linestyle='-', color="gray", label=f"Median: {half} {kc_name}")
         # average is an floating point number
-        if(int(average) < len(x)):
-            legend.axvline(x=average, ymax=(max(cdf[int(average)]/max(cdf), pdf[int(average)]/max(pdf)) / whitespace), linestyle='-.', color="gray", label=f"Mean: {average:.2f} {kc_name}")
-    except(error):
-        print(boss.name, mode)
+        if(int(average) - xcutoff < len(x)):
+            legend.axvline(x=average, ymax=(max(cdf[int(average) - xcutoff]/max(cdf), pdf[int(average) - xcutoff]/max(pdf)) / whitespace), linestyle='-.', color="gray", label=f"Mean: {average:.2f} {kc_name}")
+    except Exception as e:
+        print(boss.name, e)
     
     ax.set_title(f"Chance to complete {boss.name.replace('_', ' ').capitalize()}")
     legend.legend(loc='center right')
 
-    ax.set_xlim(left=0, right=x[-1])
+    ax.set_xlim(left=x[0], right=x[-1])
 
-    plt.savefig(f"images/{boss.name.strip().lower()}.pdf", bbox_inches='tight')
+    plt.savefig(f"images/groupsize{boss.group_size}/{boss.name.strip().lower()}.png", bbox_inches='tight')
+    plt.close()
 
 if __name__ == '__main__':
+    # createCompletionPlot(chambers_of_xeric())
     bosses = all_bosses + complete_drops
 
-    pool = Pool(processes=pool_size)
-    pool.map(createCompletionPlot, bosses)
+    for boss in [abyssal_sire()]:
+        for i in range(1,6):
+            boss.set_groupsize(i)
+            createCompletionPlot(boss)
+    # pool = Pool(processes=pool_size)
+    # pool.map(createCompletionPlot, bosses)

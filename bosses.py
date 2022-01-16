@@ -1,13 +1,11 @@
-from operator import xor, mul
+import functools
+from operator import mul
 from functools import reduce
+from os import curdir
 import random
 import math
-from matplotlib.pyplot import yscale
-import numpy as np
-from numpy.lib.function_base import average, median
-from numpy.linalg import matrix_power
-from scipy.sparse import csc_matrix
 from scipy.sparse import coo_matrix
+import numpy as np
 
 class monster:
     loot_odds = {}
@@ -20,14 +18,13 @@ class monster:
         self.absorbingMatrix = None
         
         self.group_size = 1
-        self.name = self.__class__.__name__
+        self._name = name if name else self.__class__.__name__
+        self.name = self._name
+
         if(loot_amount):
             self.loot_amount = loot_amount
-            if(name):
-                self.name = name
+        self._loot_amount = self.loot_amount.copy()
 
-        for item, amount in self.loot_amount.items():
-            self.loot_amount[item] = self.group_size * amount
 
         possible_loot = set(self.loot_odds.keys())
         if(loot_tables is not None):
@@ -39,6 +36,16 @@ class monster:
 
         self.kc = 0
         self.loot_gotten = dict.fromkeys(possible_loot, 0)
+
+    def set_groupsize(self, size):
+        self.group_size = size
+
+        # prevents python from overwriting the loot amount in other instances of this class as well
+        # because it makes total sense that all classes share the same dicts. Thanks python
+        self.loot_amount = self._loot_amount.copy()
+        for item, amount in self.loot_amount.items():
+            self.loot_amount[item] = self.group_size * amount
+
 
     def roll_loot(self, table=None):
         if(not table):
@@ -77,31 +84,51 @@ class monster:
         
         return self.kc, self.loot_gotten
 
-    def contructMatrix(self, nStates, odds, dropArrayItems):
+    # we can see state of the drops as an the index to an n dimensional array, so we can use traditional array indexing to calculate the index for the transition matrix and back
+    def indexToState(self, index, drops):
+        shape = [d + 1 for d in drops.values()]
+        state = []
+        for dimSize in shape:
+            state.append(index % dimSize)
+            index //= dimSize
+        return state
+
+
+    def stateToIndex(self, state, drops):
+        shape = [d + 1 for d in drops.values()]
+        index = 0
+        size = 1
+        for dimSize, dim in zip(shape, state):
+            index += size * dim
+            size *= dimSize
+
+        return index
+
+    def contructMatrix(self, nStates, odds, drops):
         data = []
         rowIndex = []
         colIndex = []
+
         for i in range(0,nStates):
             rowTotal = 0
-            for index, item in enumerate(dropArrayItems):
+            for itemIndex, item in enumerate(drops.keys()):
                 # skip if the item is not on this loottable
+
                 if(not item in odds):
                     continue
-
-                # skip if we already have the drop
-                if((i >> index) & 1):
+                
+                state = self.indexToState(i, drops)
+                # if we already enough of this items skip it
+                if(state[itemIndex] >= drops[item]):
                     continue
 
-                # If we need to collect multiple of 1 item we cannot get the second item before the first as we do not have 2 rolls
-                if(index > 0 and dropArrayItems[index] == dropArrayItems[index-1] and not ((i >> index-1) & 1)):
-                    continue
+                state[itemIndex] += 1
+                j = self.stateToIndex(state, drops)
 
-                # odds of going from state i 010b to state 011 (collected the 3rd item) = i+2**(ndrops - dropIndex)
-                # we mirror the state by removing ndrops
                 rowTotal += odds[item]
                 data += [odds[item]]
                 rowIndex += [i]
-                colIndex += [i+2**index]
+                colIndex += [j]
 
             # add the diagonal
             data += [1-rowTotal]
@@ -111,46 +138,62 @@ class monster:
         data = np.array(data)
         rowIndex = np.array(rowIndex, dtype='int')
         colIndex = np.array(colIndex, dtype='int')
-        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsc()
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).todense()
         
 
     def convertToMarkovChain(self):
-        nDrops = sum(self.loot_amount.values())
-        nStates = 2 ** nDrops
         
         # list all the items we need to get
         try:
-            dropArrayItems = [[item] * amount for item, amount in self.loot_amount.items()]
+            drops = {item: amount for item, amount in self.loot_amount.items() if amount > 0}
+            # merge items with the same odds
+            self.nStates = functools.reduce(mul, [amount + 1 for amount in self.loot_amount.values() if amount > 0])
         except:
             print(self.loot_amount.items())
             return
-        # flatten
-        dropArrayItems = [item for sublist in dropArrayItems for item in sublist]
+
+        # number of states in matrix * double size / 2 (because the resulting matrix is triangular)
+        memUsage = ((self.nStates ** 2 * 64 / 2)/ (1024**2))
+        print(f"{self.name} states: {self.nStates}, approx matrix memory usage: {memUsage} MB")
+        if(self.nStates > 1000):
+            return False
 
         # generate tables for all loot tables
-        m1 = self.contructMatrix(nStates, self.loot_odds, dropArrayItems)
-        m2 = self.contructMatrix(nStates, self.secondary_odds, dropArrayItems)
-        m3 = self.contructMatrix(nStates, self.tertiary_odds, dropArrayItems)
-        m4 = self.contructMatrix(nStates, self.quaternary_odds, dropArrayItems)
-
-        # getting 4 different rolls is just the odds multiplied together
-        self.absorbingMatrix = m1 * m2 * m3 * m4
+        m1 = self.contructMatrix(self.nStates, self.loot_odds, drops)
+        self.absorbingMatrix = m1
+        if(len(self.secondary_odds.keys())):
+            m2 = self.contructMatrix(self.nStates, self.secondary_odds, drops)
+            self.absorbingMatrix *= m2
+        if(len(self.tertiary_odds.keys())):
+            m3 = self.contructMatrix(self.nStates, self.tertiary_odds, drops)
+            self.absorbingMatrix *= m3
+        if(len(self.quaternary_odds.keys())):
+            m4 = self.contructMatrix(self.nStates, self.quaternary_odds, drops)
+            self.absorbingMatrix *= m4
+        
+        return True
 
     def getAbsorbingMatrixGraph(self):
+
+
         copy = self.absorbingMatrix.copy()
+        self.absorbingMatrix.shape
         (width, _) = copy.shape
         finalState = (0,width - 1)
-        y = [copy[finalState]]
-        while(copy[finalState] < 0.999999):
-            copy *= self.absorbingMatrix
+        y = [float(copy[finalState])]
+
+        copy = self.absorbingMatrix.copy()
+        while(copy[finalState] < 0.99999):
+            np.matmul(copy, self.absorbingMatrix, out=copy)
             y += [copy[finalState]]
+
 
         x = [i for i in range(1,len(y)+1)]
 
         # y index is [kc-1] compensate for that
         half = next(i[0] for i in enumerate(y) if i[1] > 0.5) + 1
 
-        # convert to pdf
+        # convert to pdf (and percentages)
         pdf = [(j - y[it-1])*100 for it,j in enumerate(y)]
         pdf[0] = self.absorbingMatrix[finalState] * 100
 
@@ -162,12 +205,21 @@ class monster:
 
         x = [x1 for it, [x1,y1] in enumerate(zip(x,y)) if y1 < cutoff or it == 0]
         pdf = [pdf for it, [pdf,y1] in enumerate(zip(pdf,y)) if y1 < cutoff or it == 0]
+        # convert to percentages here as well
         y = [y1 * 100 for it, y1 in enumerate(y) if y1 < cutoff or it == 0]
 
-        if(len(x) == 1):
-            print(self.name)
+        
+        closeCutoff = next(i[0] for i in enumerate(y) if i[1] > max(pdf)/100) + 1
+        # remove early nodes if the cutoff isn't close to the start of the graph
+        if(closeCutoff > len(y) / 10):
+            x = x[closeCutoff:]
+            pdf = pdf[closeCutoff:]
+            y = y[closeCutoff:]
+        else:
+            closeCutoff = 0
 
-        return x, y, pdf, mode, half, average
+
+        return x, y, pdf, mode, half, average, closeCutoff
 
 
 #slayer bosses
@@ -462,17 +514,18 @@ class barrows(monster):
 
     def convertToMarkovChain(self):
         self.absorbingMatrix = self.constructMatrix()
+        return self.group_size == 1
 
     def constructMatrix(self):
         # barrows has too many items, since they all have the same odds we can model them with an index of how many items we have. 
-        nStates = 25
+        self.nStates = 25
         data = []
         rowIndex = []
         colIndex = []
-        for i in range(0,nStates):
+        for i in range(0,self.nStates):
             rowTotal = 0
 
-            for j in range(1, min(8, nStates - i)):
+            for j in range(1, min(8, self.nStates - i)):
                 odds = self.itemOdds(i, j)
                 data += [odds]
                 rowTotal += odds
@@ -487,7 +540,7 @@ class barrows(monster):
         data = np.array(data)
         rowIndex = np.array(rowIndex, dtype='int')
         colIndex = np.array(colIndex, dtype='int')
-        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsc()
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(self.nStates,self.nStates)).todense()
 
     def itemOdds(self, gotten, new):
         odds = 0
@@ -548,43 +601,125 @@ class chaos_elemental(monster):
     loot_odds = {"Dragon pickaxe":1/256,"Dragon 2h sword":20/69}
     loot_amount = {"Dragon pickaxe":0, "Dragon 2h sword":0}
 
-hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="Alchemical Hydra + brimstone ring")
-hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="Alchemical Hydra + brimstone ring + knives&axes")
-krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="Cave Kraken + 11 tents")
-kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "Kalphite Queen chain+2h")
-ce = chaos_elemental(loot_amount = {"Dragon pickaxe":1, "Dragon 2h sword":0}, name="Chaos Elemental dpick")
-kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="King Black Dragon, visage + pick")
-ven = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":1}, name="Wildy boss, ring + pick + 2h")
-ven2 = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss, ring + pick")
-ven3 = venenatis(loot_amount={"treasonous ring":0,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss just the d pick")
-cerb = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":1}, name="Cerberus + 1 smouldering")
-cerb2 = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":3}, name= "Cerberus + 3 smouldering")
-sire = abyssal_sire(loot_amount = {"bludgeon piece":3, "abyssal dagger":1}, name= "Abyssal Sire + dagger")
-dks = dkings(name="Dagannoth Kings")
-corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysian sigil":1,"spirit shield":3,"holy elixer":3}, name = "Corporeal Beast + 3 blessed shields")
-zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="Zulrah + onyx + mutagens")
-zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="Zulrah, 2 magic fangs")
-night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Nightmare 3 staves")
-pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Phosanis nightmare, 3 staves")
-pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq + mace")
-pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq, no mace")
-vork = vorkath(loot_amount = {"dragonbone necklace":1,"skeletal visage":1,"draconic visage":1}, name="Vorkath, both visages")
-cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet, 2 enhanced weapon seeds, 6 armour crystals")
-cg1seed = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":1, "crystal armour seed":6}, name="Corrupted gauntlet, 1 enhanced weapon seeds, 6 armour crystals")
 
-temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross, big harpoonfish")
-temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross, dragon harpoon")
-temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross, dragon harpoon + big harpoonfish")
+def optionalBosses():
+    hydra = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":0,"dragon knife":0}, name="Alchemical Hydra + brimstone ring")
+    hydra2 = alchemical_hydra(loot_amount={"ring piece":3,"hydra tail":1,"hydra leather":1,"hydra's claw":1,"dragon thrownaxe":1,"dragon knife":1}, name="Alchemical Hydra + brimstone ring + knives&axes")
+    krak = cave_kraken(loot_amount={"kraken tentacle":11, "trident of the seas (full)":1}, name="Cave Kraken + 11 tents")
+    kq = kalphite_queen(loot_amount={"dragon chain":1,"dragon 2h sword":1}, name= "Kalphite Queen chain+2h")
+    ce = chaos_elemental(loot_amount = {"Dragon pickaxe":1, "Dragon 2h sword":0}, name="Chaos Elemental dpick")
+    kbd = king_black_dragon(loot_amount={"dragon pickaxe":1, "draconic visage":1/5000}, name="King Black Dragon, visage + pick")
+    ven = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":1}, name="Wildy boss, ring + pick + 2h")
+    ven2 = venenatis(loot_amount={"treasonous ring":1,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss, ring + pick")
+    ven3 = venenatis(loot_amount={"treasonous ring":0,"dragon pickaxe":1,"dragon 2h sword":0}, name="Wildy boss just the d pick")
+    cerb = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":1}, name="Cerberus + 1 smouldering")
+    cerb2 = cerberus(loot_amount = {"primordial crystal":1,"pegasian_crystal":1,"eternal crystal":1,"smouldering stone":3}, name= "Cerberus + 3 smouldering")
+    sire = abyssal_sire(loot_amount = {"bludgeon piece":3, "abyssal dagger":1}, name= "Abyssal Sire + dagger")
+    dks = dkings(name="Dagannoth Kings")
+    corp = corporeal_beast(loot_amount = {"arcane sigil":1,"spectral sigil":1,"elysian sigil":1,"spirit shield":3,"holy elixer":3}, name = "Corporeal Beast + 3 blessed shields")
+    zul = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":1,"serpentine visage":1,"uncut onyx":1, "magma mutagen":1, "tanzanite mutagen":1}, name="Zulrah + onyx + mutagens")
+    zul2 = zulrah(loot_amount = {"tanzanite fang":1,"magic fang":2,"serpentine visage":1,"uncut onyx":0, "magma mutagen":0, "tanzanite mutagen":0}, name="Zulrah, 2 magic fangs")
+    night = nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Nightmare 3 staves")
+    pnight = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":3, "eldritch orb":1, "harmonised orb":1,"volatile orb":1}, name="Phosanis nightmare, 3 staves")
+    pnightinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":1, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq + mace")
+    pnightjustinq = phosanis_nightmare(loot_amount = {"inquisitor's great helm":1,"inquisitor's hauberk":1,"inquisitor's plateskirt":1, "inquisitor's mace":0, "nightmare staff":0, "eldritch orb":0, "harmonised orb":0,"volatile orb":0}, name="Phosanis nightmare, full inq, no mace")
+    vork = vorkath(loot_amount = {"dragonbone necklace":1,"skeletal visage":1,"draconic visage":1}, name="Vorkath, both visages")
+    cg = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":2, "crystal armour seed":6}, name="Corrupted gauntlet, 2 enhanced weapon seeds, 6 armour crystals")
+    cg1seed = corrupted_gauntlet(loot_amount={"enhanced crystal weapon seed":1, "crystal armour seed":6}, name="Corrupted gauntlet, 1 enhanced weapon seeds, 6 armour crystals")
 
-nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "Nex, torva + vambraces + nihil")
-nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, torva + vambraces")
-nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, just torva")
-nex6man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=6, name="nex, (assuming 6 man)")
-nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=8, name="nex, (assuming 8 man)")
+    temp = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":0}, name="tempoross, big harpoonfish")
+    temp1 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":1}, name="tempoross, dragon harpoon")
+    temp2 = tempoross(loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":1, "Tome of water":1, "dragon harpoon":1}, name="\ntempoross, dragon harpoon + big harpoonfish")
 
-tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
-zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
+    nextorvanihilvambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1}, name= "Nex, torva + vambraces + nihil")
+    nextorvavambraces = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, torva + vambraces")
+    nextorva = nex(loot_amount = {"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1}, name= "Nex, just torva")
+    nex6man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=6, name="nex, (assuming 6 man)")
+    nex8man = nex(loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}, teamsize=8, name="nex, (assuming 8 man)")
+
+    tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
+    zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
 
 
-complete_drops = [temp, temp1, temp2, pnightjustinq, pnightinq, pnight, krak, cg, cg1seed, hydra, hydra2, kq, dks, ven, ven2, ven3, cerb, cerb2, sire, corp, zul, zul2, night, vork, nextorvavambraces, nextorva, nextorvanihilvambraces, nex6man, tob3man, nex8man, zalcano3tool, ce]
-all_bosses = [theatre_of_blood(), chambers_of_xeric(), theatre_of_blood_hard_mode(), barrows(), nex(), phosanis_nightmare(), tempoross(), nightmare(), grotesque_guardians(), abyssal_sire(), cave_kraken(), cerberus(), thermonuclear_smoke_devil(), alchemical_hydra(), chaos_fanatic(), crazy_archaeologist(), scorpia(), vetion(), venenatis(), callisto(), obor(), bryophyta(), mimic(), hespori(), zalcano(), wintertodt(), corrupted_gauntlet(), gauntlet(), dagannoth_rex(), dagannoth_supreme(), dagannoth_prime(), sarachnis(), kalphite_queen(), zulrah(), vorkath(), corporeal_beast(), commander_zilyana(), general_graardor(), kril_tsutsaroth(), kree_arra(), chaos_elemental()]
+    return [
+        temp,
+        temp1,
+        temp2,
+        pnightjustinq,
+        pnightinq,
+        pnight,
+        krak,
+        cg,
+        cg1seed,
+        hydra,
+        hydra2,
+        kq,
+        dks,
+        ven,
+        ven2,
+        ven3,
+        cerb,
+        cerb2,
+        sire,
+        corp,
+        zul,
+        zul2,
+        night,
+        vork,
+        nextorvavambraces,
+        nextorva,
+        nextorvanihilvambraces,
+        nex6man,
+        tob3man,
+        nex8man,
+        zalcano3tool,
+        ce
+    ]
+
+def allBosses():
+    return [
+        theatre_of_blood(),
+        # chambers_of_xeric(),
+        theatre_of_blood_hard_mode(),
+        barrows(),
+        nex(),
+        phosanis_nightmare(),
+        tempoross(),
+        nightmare(),
+        grotesque_guardians(),
+        abyssal_sire(),
+        cave_kraken(),
+        cerberus(),
+        thermonuclear_smoke_devil(),
+        alchemical_hydra(),
+        chaos_fanatic(),
+        crazy_archaeologist(),
+        scorpia(),
+        vetion(),
+        venenatis(),
+        callisto(),
+        obor(),
+        bryophyta(),
+        mimic(),
+        hespori(),
+        zalcano(),
+        wintertodt(),
+        corrupted_gauntlet(),
+        gauntlet(),
+        dagannoth_rex(),
+        dagannoth_supreme(),
+        dagannoth_prime(),
+        sarachnis(),
+        kalphite_queen(),
+        zulrah(),
+        vorkath(),
+        corporeal_beast(),
+        commander_zilyana(),
+        general_graardor(),
+        kril_tsutsaroth(),
+        kree_arra(),
+        chaos_elemental()
+    ]
+
+complete_drops = optionalBosses()
+all_bosses = allBosses()
