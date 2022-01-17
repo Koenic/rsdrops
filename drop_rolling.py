@@ -1,12 +1,11 @@
-from bosses import abyssal_sire, all_bosses, complete_drops
-import os
+from bosses import all_bosses, complete_drops
 import matplotlib
 from collections import Counter
 from multiprocessing import Pool
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-pool_size = 4
+pool_size = 10
 number_off_completions = 1000000
     
 def simulate_average_completion(boss, sample_size=number_off_completions):
@@ -53,7 +52,7 @@ def createCompletionPlot(boss):
     
     lootstring = ''
     count = 0
-    items = [f"{item}: {amount}" for item, amount in boss.loot_amount.items() if amount > 0]
+    items = [f"{item.title()}: {amount}" for item, amount in boss.loot_amount.items() if amount > 0]
     for it,part in enumerate(items):
         lootstring = f"{lootstring} {part}{', ' if it < len(items) - 1 else ''}"
         count += len(part)
@@ -102,13 +101,15 @@ def createCompletionPlot(boss):
     plt.savefig(f"images/groupsize{boss.group_size}/{boss.name.strip().lower()}.png", bbox_inches='tight')
     plt.close()
 
+def plots(boss):
+    
+    for i in range(1,6):
+        boss.set_groupsize(i)
+        createCompletionPlot(boss)
+
 if __name__ == '__main__':
-    # createCompletionPlot(chambers_of_xeric())
     bosses = all_bosses + complete_drops
 
-    for boss in [abyssal_sire()]:
-        for i in range(1,6):
-            boss.set_groupsize(i)
-            createCompletionPlot(boss)
-    # pool = Pool(processes=pool_size)
-    # pool.map(createCompletionPlot, bosses)
+    for boss in all_bosses:
+        pool = Pool(processes=pool_size)
+        pool.map(plots, bosses)

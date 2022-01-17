@@ -1,7 +1,6 @@
 import functools
 from operator import mul
 from functools import reduce
-from os import curdir
 import random
 import math
 from scipy.sparse import coo_matrix
@@ -138,7 +137,7 @@ class monster:
         data = np.array(data)
         rowIndex = np.array(rowIndex, dtype='int')
         colIndex = np.array(colIndex, dtype='int')
-        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).todense()
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(nStates,nStates)).tocsr()
         
 
     def convertToMarkovChain(self):
@@ -155,7 +154,7 @@ class monster:
         # number of states in matrix * double size / 2 (because the resulting matrix is triangular)
         memUsage = ((self.nStates ** 2 * 64 / 2)/ (1024**2))
         print(f"{self.name} states: {self.nStates}, approx matrix memory usage: {memUsage} MB")
-        if(self.nStates > 1000):
+        if(self.nStates > 4096):
             return False
 
         # generate tables for all loot tables
@@ -184,7 +183,7 @@ class monster:
 
         copy = self.absorbingMatrix.copy()
         while(copy[finalState] < 0.99999):
-            np.matmul(copy, self.absorbingMatrix, out=copy)
+            copy *= self.absorbingMatrix
             y += [copy[finalState]]
 
 
@@ -540,7 +539,7 @@ class barrows(monster):
         data = np.array(data)
         rowIndex = np.array(rowIndex, dtype='int')
         colIndex = np.array(colIndex, dtype='int')
-        return coo_matrix((data, (rowIndex, colIndex)), shape=(self.nStates,self.nStates)).todense()
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(self.nStates,self.nStates)).tocsr()
 
     def itemOdds(self, gotten, new):
         odds = 0
@@ -679,7 +678,7 @@ def optionalBosses():
 def allBosses():
     return [
         theatre_of_blood(),
-        # chambers_of_xeric(),
+        chambers_of_xeric(),
         theatre_of_blood_hard_mode(),
         barrows(),
         nex(),
