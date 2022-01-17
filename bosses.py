@@ -19,6 +19,7 @@ class monster:
         self.group_size = 1
         self._name = name if name else self.__class__.__name__
         self.name = self._name
+        self.nStates = 0
 
         if(loot_amount):
             self.loot_amount = loot_amount
@@ -36,6 +37,9 @@ class monster:
         self.kc = 0
         self.loot_gotten = dict.fromkeys(possible_loot, 0)
 
+        # merge items with the same odds
+        self.setNstates()
+
     def set_groupsize(self, size):
         self.group_size = size
 
@@ -44,6 +48,14 @@ class monster:
         self.loot_amount = self._loot_amount.copy()
         for item, amount in self.loot_amount.items():
             self.loot_amount[item] = self.group_size * amount
+        self.setNstates()
+
+    def setNstates(self):
+        # merge items with the same odds
+        try:
+            self.nStates = functools.reduce(mul, [amount + 1 for amount in self.loot_amount.values() if amount > 0])
+        except Exception as e:
+            self.nStates = 0
 
 
     def roll_loot(self, table=None):
@@ -145,8 +157,6 @@ class monster:
         # list all the items we need to get
         try:
             drops = {item: amount for item, amount in self.loot_amount.items() if amount > 0}
-            # merge items with the same odds
-            self.nStates = functools.reduce(mul, [amount + 1 for amount in self.loot_amount.values() if amount > 0])
         except:
             print(self.loot_amount.items())
             return
@@ -719,6 +729,3 @@ def allBosses():
         kree_arra(),
         chaos_elemental()
     ]
-
-complete_drops = optionalBosses()
-all_bosses = allBosses()

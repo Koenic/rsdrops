@@ -1,4 +1,4 @@
-from bosses import all_bosses, complete_drops
+from bosses import optionalBosses, allBosses
 import matplotlib
 from collections import Counter
 from multiprocessing import Pool
@@ -41,9 +41,9 @@ def simulate_average_completion(boss, sample_size=number_off_completions):
     plt.savefig("images/{}_{}.pdf".format(sample_size, boss.name, bbox_inches='tight'))
 
 def createCompletionPlot(boss):
-    print(boss.name)
+    print(boss.name + '\n')
     if not boss.convertToMarkovChain():
-        print(boss.name, 'State space too large')
+        print(boss.name, 'State space too large\n')
         return
     print(boss.name, 'created matrix')
     (x, cdf, pdf, mode, half, average, xcutoff) = boss.getAbsorbingMatrixGraph()
@@ -74,7 +74,7 @@ def createCompletionPlot(boss):
 
     ax2.plot(x,cdf, label='cdf', color='tab:red')
     ax2.tick_params(axis='y', labelcolor='tab:red')
-    ax2.set_ylabel('% chance to have completed', color='tab:red')
+    ax2.set_ylabel('% chance to complete at or before kc', color='tab:red')
     ax2.set_ylim(bottom=0, top=100 * whitespace)
     ax.plot(x,pdf, label='pdf', color='tab:blue')
     ax.set_ylabel('% chance to complete at kc', color='tab:blue')
@@ -101,15 +101,22 @@ def createCompletionPlot(boss):
     plt.savefig(f"images/groupsize{boss.group_size}/{boss.name.strip().lower()}.png", bbox_inches='tight')
     plt.close()
 
-def plots(boss):
-    
-    for i in range(1,6):
-        boss.set_groupsize(i)
-        createCompletionPlot(boss)
+
 
 if __name__ == '__main__':
-    bosses = all_bosses + complete_drops
+    bosses = []
 
-    for boss in all_bosses:
-        pool = Pool(processes=pool_size)
-        pool.map(plots, bosses)
+    
+    for i in range(1,6):
+        for boss in allBosses() + optionalBosses():
+            boss.set_groupsize(i)
+            bosses.append(boss)
+
+    # doing long bosses first allows the shorter bosses to fill in the 'gaps' after a thread has finished better
+    # leading to shorter execution times. States is a good indication of how long a boss will take to compute
+    bosses.sort(key=lambda b: b.nStates, reverse = True)
+    print(len(bosses))
+
+    pool = Pool(processes=pool_size)
+    # chunksize 1 ensures the bosses get evaluated rougly in the same order as the bosses array which is good enough
+    pool.map(createCompletionPlot, bosses, chunksize=1)
