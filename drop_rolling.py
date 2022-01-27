@@ -106,7 +106,6 @@ def createCompletionPlot(boss):
 if __name__ == '__main__':
     bosses = []
 
-    
     for i in range(1,6):
         for boss in allBosses() + optionalBosses():
             boss.set_groupsize(i)

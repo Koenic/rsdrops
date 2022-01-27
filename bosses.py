@@ -576,15 +576,18 @@ class theatre_of_blood(monster):
 
 
 class theatre_of_blood_hard_mode(monster):
-    # assumption based on hearsay
-    base_odds = 1/7
+    # https://twitter.com/JagexArcane/status/1485992982906085376
+    base_odds = 13/100
 
-    loot_odds = {"scythe of vitur":1/19, "grazi rapier":2/19,"sanguinesti staff":2/19, "justiciar faceguard":2/19, "justiciar chestguard":2/19, "justiciar legguard":2/19, "avernic hilt":8/19}
+    loot_odds = {"scythe of vitur":1/18, "grazi rapier":2/18,"sanguinesti staff":2/18, "justiciar faceguard":2/18, "justiciar chestguard":2/18, "justiciar legguard":2/18, "avernic hilt":7/18}
+    
+    secondary_odds = {"Sanguine dust":1/275, "Sanguine ornament kit":1/150,"holy ornament kit":1/100}
 
-    loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}
+    loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1, "Sanguine dust":0, "Sanguine ornament kit":0,"holy ornament kit":0}
 
     def __init__(self, teamsize=1, **kwargs):
         self.loot_odds = self.loot_odds.copy()
+        kwargs["loot_tables"] = [self.secondary_odds]
         for drop in self.loot_odds:
             self.loot_odds[drop] *= (self.base_odds / teamsize)
         super().__init__(**kwargs)
@@ -649,6 +652,10 @@ def optionalBosses():
     tob3man = theatre_of_blood(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1}, name="Theatre of blood (3 man)", teamsize=3)
     zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
 
+    hardMode3man = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1, "Sanguine dust":0, "Sanguine ornament kit":0,"holy ornament kit":0}, name="Theatre of blood hardmode (3 man)", teamsize=3)
+    hardModeKits = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":1}, name="Theatre of blood hardmode (3 man)", teamsize=3)
+    hardModeJustKits = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":0, "grazi rapier":0,"sanguinesti staff":0, "justiciar faceguard":0, "justiciar chestguard":0, "justiciar legguard":0, "avernic hilt":0, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":1}, name="Theatre of blood hardmode kits", teamsize=3)
+    hardMode3holy = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":0, "grazi rapier":0,"sanguinesti staff":0, "justiciar faceguard":0, "justiciar chestguard":0, "justiciar legguard":0, "avernic hilt":0, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":3}, name="Theatre of blood hardmode 3 holy kits", teamsize=3)
 
     return [
         temp,
@@ -664,6 +671,7 @@ def optionalBosses():
         hydra2,
         kq,
         dks,
+        kbd,
         ven,
         ven2,
         ven3,
@@ -682,7 +690,11 @@ def optionalBosses():
         tob3man,
         nex8man,
         zalcano3tool,
-        ce
+        ce,
+        hardMode3man,
+        hardModeKits,
+        hardModeJustKits,
+        hardMode3holy
     ]
 
 def allBosses():
@@ -727,5 +739,6 @@ def allBosses():
         general_graardor(),
         kril_tsutsaroth(),
         kree_arra(),
-        chaos_elemental()
+        chaos_elemental(),
+        theatre_of_blood_hard_mode()
     ]
