@@ -653,7 +653,6 @@ def optionalBosses():
     zalcano3tool = zalcano(loot_amount = {"crystal tool seed":3, "zalcano shard":0}, name="Zalcano 3 tool seeds")
 
     hardMode3man = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1, "Sanguine dust":0, "Sanguine ornament kit":0,"holy ornament kit":0}, name="Theatre of blood hardmode (3 man)", teamsize=3)
-    hardModeKits = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":1, "grazi rapier":1,"sanguinesti staff":1, "justiciar faceguard":1, "justiciar chestguard":1, "justiciar legguard":1, "avernic hilt":1, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":1}, name="Theatre of blood hardmode (3 man)", teamsize=3)
     hardModeJustKits = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":0, "grazi rapier":0,"sanguinesti staff":0, "justiciar faceguard":0, "justiciar chestguard":0, "justiciar legguard":0, "avernic hilt":0, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":1}, name="Theatre of blood hardmode kits", teamsize=3)
     hardMode3holy = theatre_of_blood_hard_mode(loot_amount = {"scythe of vitur":0, "grazi rapier":0,"sanguinesti staff":0, "justiciar faceguard":0, "justiciar chestguard":0, "justiciar legguard":0, "avernic hilt":0, "Sanguine dust":1, "Sanguine ornament kit":1,"holy ornament kit":3}, name="Theatre of blood hardmode 3 holy kits", teamsize=3)
 
@@ -692,7 +691,6 @@ def optionalBosses():
         zalcano3tool,
         ce,
         hardMode3man,
-        hardModeKits,
         hardModeJustKits,
         hardMode3holy
     ]
