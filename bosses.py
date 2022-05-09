@@ -326,15 +326,19 @@ class zalcano(monster):
     loot_amount = {"crystal tool seed":1, "zalcano shard":1}
     zalcano_shard = {"max_odds":1/750, "min_odds":1/1500}
 
-        
 class wintertodt(monster):
     loot_odds = {"pyromancer outfit":1/150,"bruma torch":1/150,"warm gloves":1/150,"tome of fire":1/1000,"dragon axe":1/10000}
     loot_amount = {"pyromancer outfit":4,"bruma torch":1,"warm gloves":1,"tome of fire":1, "dragon axe":0}
     kc_name = 'loot rolls'
-
+        
 class tempoross(monster):
     loot_odds = {"soaked page":100/5369, "fish barrel":1/400, "tackle box":1/400, "big harpoonfish":1/1600, "Tome of water":1/1600, "dragon harpoon":1/8000}
     loot_amount = {"soaked page":1, "fish barrel":1, "tackle box":1, "big harpoonfish":0, "Tome of water":1, "dragon harpoon":0}
+    kc_name = 'loot rolls'
+
+class guardians_of_the_rift(monster):
+    loot_odds = {"catalytic talisman":1/200, "abyssal needle":1/300, "abyssal lantern":1/700, "tarnished locket":1/1250, "lost bag": 1/1750, "Abyssal green dye": 1/1200, "Abyssal blue dye": 1/1200, "Abyssal red dye": 1/1200}
+    loot_amount = {"catalytic talisman":1, "abyssal needle":1, "abyssal lantern":1, "tarnished locket":1, "lost bag": 0, "Abyssal green dye": 0, "Abyssal blue dye": 0, "Abyssal red dye": 0}
     kc_name = 'loot rolls'
 
 class corrupted_gauntlet(monster):
@@ -476,7 +480,7 @@ class phosanis_nightmare(monster):
         self.teamsize = teamsize
 
 class nex(monster):
-    loot_odds = {"Zaryte vambraces":1/212,"Torva full helm (damaged)":1/318,"Torva platebody (damaged)":1/318, "Torva platelegs (damaged)":1/318, "Nihil horn":1/318, "Ancient hilt":1/636}
+    loot_odds = {"Zaryte vambraces":1/172,"Torva full helm (damaged)":1/258,"Torva platebody (damaged)":1/258, "Torva platelegs (damaged)":1/258, "Nihil horn":1/258, "Ancient hilt":1/516}
     loot_amount = {"Zaryte vambraces":1,"Torva full helm (damaged)":1,"Torva platebody (damaged)":1, "Torva platelegs (damaged)":1, "Nihil horn":1, "Ancient hilt":1}
 
 
@@ -557,6 +561,70 @@ class barrows(monster):
         for i in range(new,8):
             odds += math.comb(7,i) * (1/102)**i * (101/102)**(7-i) * math.comb(i, new) * reduce(mul, [((24 - gotten - j) / (24 - j)) for j in range(new)], 1) * reduce(mul, [(1 - (24 - new - gotten - j) / (24 - new - j)) for j in range(i - new)], 1)
         return odds
+
+
+class easy_clues(monster):
+    loot_odds = {"Amulet of magic (t)": 1/360, "Wooden shield (g)": 1/1404, "Black full helm (t)": 1/1404, "Black platebody (t)": 1/1404, "Black platelegs (t)": 1/1404, "Black plateskirt (t)": 1/1404, "Black kiteshield (t)": 1/1404, "Black full helm (g)": 1/1404, "Black platebody (g)": 1/1404, "Black platelegs (g)": 1/1404, "Black plateskirt (g)": 1/1404, "Black kiteshield (g)": 1/1404, "Black shield (h1)": 1/1404, "Black shield (h2)": 1/1404, "Black shield (h3)": 1/1404, "Black shield (h4)": 1/1404, "Black shield (h5)": 1/1404, "Black helm (h1)": 1/1404, "Black helm (h2)": 1/1404, "Black helm (h3)": 1/1404, "Black helm (h4)": 1/1404, "Black helm (h5)": 1/1404, "Black platebody (h1)": 1/1404, "Black platebody (h2)": 1/1404, "Black platebody (h3)": 1/1404, "Black platebody (h4)": 1/1404, "Black platebody (h5)": 1/1404, "Steel full helm (t)": 1/1404, "Steel platebody (t)": 1/1404, "Steel platelegs (t)": 1/1404, "Steel plateskirt (t)": 1/1404, "Steel kiteshield (t)": 1/1404, "Steel full helm (g)": 1/1404, "Steel platebody (g)": 1/1404, "Steel platelegs (g)": 1/1404, "Steel plateskirt (g)": 1/1404, "Steel kiteshield (g)": 1/1404, "Iron full helm (t)": 1/1404, "Iron platebody (t)": 1/1404, "Iron platelegs (t)": 1/1404, "Iron plateskirt (t)": 1/1404, "Iron kiteshield (t)": 1/1404, "Iron full helm (g)": 1/1404, "Iron platebody (g)": 1/1404, "Iron platelegs (g)": 1/1404, "Iron plateskirt (g)": 1/1404, "Iron kiteshield (g)": 1/1404, "Bronze full helm (t)": 1/1404, "Bronze platebody (t)": 1/1404, "Bronze platelegs (t)": 1/1404, "Bronze plateskirt (t)": 1/1404, "Bronze kiteshield (t)": 1/1404, "Bronze full helm (g)": 1/1404, "Bronze platebody (g)": 1/1404, "Bronze platelegs (g)": 1/1404, "Bronze plateskirt (g)": 1/1404, "Bronze kiteshield (g)": 1/1404, "Studded body (g)": 1/1404, "Studded chaps (g)": 1/1404, "Studded body (t)": 1/1404, "Studded chaps (t)": 1/1404, "Leather body (g)": 1/1404, "Leather chaps (g)": 1/1404, "Blue wizard hat (g)": 1/1404, "Blue wizard robe (g)": 1/1404, "Blue skirt (g)": 1/1404, "Blue wizard hat (t)": 1/1404, "Blue wizard robe (t)": 1/1404, "Blue skirt (t)": 1/1404, "Black wizard hat (g)": 1/1404, "Black wizard robe (g)": 1/1404, "Black skirt (g)": 1/1404, "Black wizard hat (t)": 1/1404, "Black wizard robe (t)": 1/1404, "Black skirt (t)": 1/1404, "Saradomin robe top": 1/1404, "Saradomin robe legs": 1/1404, "Guthix robe top": 1/1404, "Guthix robe legs": 1/1404, "Zamorak robe top": 1/1404, "Zamorak robe legs": 1/1404, "Ancient robe top": 1/1404, "Ancient robe legs": 1/1404, "Armadyl robe top": 1/1404, "Armadyl robe legs": 1/1404, "Bandos robe top": 1/1404, "Bandos robe legs": 1/1404, "Bob's red shirt": 1/1404, "Bob's green shirt": 1/1404, "Bob's blue shirt": 1/1404, "Bob's black shirt": 1/1404, "Bob's purple shirt": 1/1404, "Highwayman mask": 1/1404, "Blue beret": 1/1404, "Black beret": 1/1404, "Red beret": 1/1404, "White beret": 1/1404, "A powdered wig": 1/1404, "Beanie": 1/1404, "Imp mask": 1/1404, "Goblin mask": 1/1404, "Sleeping cap": 1/1404, "Flared trousers": 1/1404, "Pantaloons": 1/1404, "Black cane": 1/1404, "Staff of bob the cat": 1/1404, "Amulet of power (t)": 1/1404, "Ham joint": 1/1404, "Rain bow": 1/1404, "Golden chef's hat": 1/2808, "Golden apron": 1/2808, "Red elegant shirt": 1/2808, "Red elegant blouse": 1/2808, "Red elegant legs": 1/2808, "Red elegant skirt": 1/2808, "Green elegant shirt": 1/2808, "Green elegant blouse": 1/2808, "Green elegant legs": 1/2808, "Green elegant skirt": 1/2808, "Blue elegant shirt": 1/2808, "Blue elegant blouse": 1/2808, "Blue elegant legs": 1/2808, "Blue elegant skirt": 1/2808, "Team cape zero": 1/5616, "Team cape i": 1/5616, "Team cape x": 1/5616, "Cape of skulls": 1/5616, "Monk's robe top (g)": 1/14040, "Monk's robe (g)": 1/14040,  }
+    
+    loot_amount = {"Amulet of magic (t)": 1, "Wooden shield (g)": 1, "Black full helm (t)": 1, "Black platebody (t)": 1, "Black platelegs (t)": 1, "Black plateskirt (t)": 1, "Black kiteshield (t)": 1, "Black full helm (g)": 1, "Black platebody (g)": 1, "Black platelegs (g)": 1, "Black plateskirt (g)": 1, "Black kiteshield (g)": 1, "Black shield (h1)": 1, "Black shield (h2)": 1, "Black shield (h3)": 1, "Black shield (h4)": 1, "Black shield (h5)": 1, "Black helm (h1)": 1, "Black helm (h2)": 1, "Black helm (h3)": 1, "Black helm (h4)": 1, "Black helm (h5)": 1, "Black platebody (h1)": 1, "Black platebody (h2)": 1, "Black platebody (h3)": 1, "Black platebody (h4)": 1, "Black platebody (h5)": 1, "Steel full helm (t)": 1, "Steel platebody (t)": 1, "Steel platelegs (t)": 1, "Steel plateskirt (t)": 1, "Steel kiteshield (t)": 1, "Steel full helm (g)": 1, "Steel platebody (g)": 1, "Steel platelegs (g)": 1, "Steel plateskirt (g)": 1, "Steel kiteshield (g)": 1, "Iron full helm (t)": 1, "Iron platebody (t)": 1, "Iron platelegs (t)": 1, "Iron plateskirt (t)": 1, "Iron kiteshield (t)": 1, "Iron full helm (g)": 1, "Iron platebody (g)": 1, "Iron platelegs (g)": 1, "Iron plateskirt (g)": 1, "Iron kiteshield (g)": 1, "Bronze full helm (t)": 1, "Bronze platebody (t)": 1, "Bronze platelegs (t)": 1, "Bronze plateskirt (t)": 1, "Bronze kiteshield (t)": 1, "Bronze full helm (g)": 1, "Bronze platebody (g)": 1, "Bronze platelegs (g)": 1, "Bronze plateskirt (g)": 1, "Bronze kiteshield (g)": 1, "Studded body (g)": 1, "Studded chaps (g)": 1, "Studded body (t)": 1, "Studded chaps (t)": 1, "Leather body (g)": 1, "Leather chaps (g)": 1, "Blue wizard hat (g)": 1, "Blue wizard robe (g)": 1, "Blue skirt (g)": 1, "Blue wizard hat (t)": 1, "Blue wizard robe (t)": 1, "Blue skirt (t)": 1, "Black wizard hat (g)": 1, "Black wizard robe (g)": 1, "Black skirt (g)": 1, "Black wizard hat (t)": 1, "Black wizard robe (t)": 1, "Black skirt (t)": 1, "Saradomin robe top": 1, "Saradomin robe legs": 1, "Guthix robe top": 1, "Guthix robe legs": 1, "Zamorak robe top": 1, "Zamorak robe legs": 1, "Ancient robe top": 1, "Ancient robe legs": 1, "Armadyl robe top": 1, "Armadyl robe legs": 1, "Bandos robe top": 1, "Bandos robe legs": 1, "Bob's red shirt": 1, "Bob's green shirt": 1, "Bob's blue shirt": 1, "Bob's black shirt": 1, "Bob's purple shirt": 1, "Highwayman mask": 1, "Blue beret": 1, "Black beret": 1, "Red beret": 1, "White beret": 1, "A powdered wig": 1, "Beanie": 1, "Imp mask": 1, "Goblin mask": 1, "Sleeping cap": 1, "Flared trousers": 1, "Pantaloons": 1, "Black cane": 1, "Staff of bob the cat": 1, "Amulet of power (t)": 1, "Ham joint": 1, "Rain bow": 1, "Golden chef's hat": 1, "Golden apron": 1, "Red elegant shirt": 1, "Red elegant blouse": 1, "Red elegant legs": 1, "Red elegant skirt": 1, "Green elegant shirt": 1, "Green elegant blouse": 1, "Green elegant legs": 1, "Green elegant skirt": 1, "Blue elegant shirt": 1, "Blue elegant blouse": 1, "Blue elegant legs": 1, "Blue elegant skirt": 1, "Team cape zero": 1, "Team cape i": 1, "Team cape x": 1, "Cape of skulls": 1, "Monk's robe top (g)": 1, "Monk's robe (g)": 1,  }
+
+    loot_rolls = 3
+
+    def roll_loot(self):
+        loot = []
+        for _ in range(self.loot_rolls):
+            l = random.choice(list(self.loot_odds.keys()))
+            loot += [l]
+
+        return loot
+
+    def convertToTotals(self):
+        self.loot_totals = {}
+        
+        for _, v in self.loot_odds.items():
+            self.loot_totals[v] = 1 if v not in self.loot_totals.keys() else self.loot_totals[v] + 1
+
+        print(self.loot_totals)
+
+    def convertToMarkovChain(self):
+        self.convertToTotals()
+        self.absorbingMatrix = self.constructMatrix()
+        return self.group_size == 1
+
+    def constructMatrix(self):
+        self.nStates = 2 ** len(self.loot_totals.keys()) * reduce(mul, self.loot_totals.keys())
+        data = []
+        rowIndex = []
+        colIndex = []
+        for i in range(0,self.nStates):
+            rowTotal = 0
+
+            for lootIndex, (odds, total) in enumerate(self.loot_totals.items()):
+                state = self.indexToState(i, self.loot_totals)
+                
+                # if we already enough of this item group skip it
+                if(state[lootIndex] >= total):
+                    continue
+                
+                odds = self.itemOdds(odds, state[lootIndex], total)
+                data += [odds]
+                rowTotal += odds
+                rowIndex += [i]
+                colIndex += [i + j]
+
+            # add the diagonal
+            data += [1-rowTotal]
+            rowIndex += [i]
+            colIndex += [i]
+        
+        data = np.array(data)
+        rowIndex = np.array(rowIndex, dtype='int')
+        colIndex = np.array(colIndex, dtype='int')
+        return coo_matrix((data, (rowIndex, colIndex)), shape=(self.nStates,self.nStates)).tocsr()
+
+    def itemOdds(self, baseOdds, current, total):
+        # state is an array with the number of items collected per drop rate
+        return baseOdds * current / total
 
 
 class theatre_of_blood(monster):
@@ -738,5 +806,6 @@ def allBosses():
         kril_tsutsaroth(),
         kree_arra(),
         chaos_elemental(),
-        theatre_of_blood_hard_mode()
+        theatre_of_blood_hard_mode(),
+        guardians_of_the_rift()
     ]
