@@ -564,6 +564,11 @@ class barrows(monster):
 
 
 class easy_clues(monster):
+    # Group items by their rarity this drastically reduces the amount of nodes in our markov chain to around 1.5 million!
+    # Which means that we only need 1,125,000,000,000 doubles worth of memory to hold the transition graph in memory
+    # Contact me if you know someone with a supercomputer that wants to run some unoptimized code on it to find out 
+    # the exact kc it takes to complete easy clues until Jagex updates the loot table again!
+    # Then calculate the odds of getting a new item of the same rarity
     loot_odds = {"Amulet of magic (t)": 1/360, "Wooden shield (g)": 1/1404, "Black full helm (t)": 1/1404, "Black platebody (t)": 1/1404, "Black platelegs (t)": 1/1404, "Black plateskirt (t)": 1/1404, "Black kiteshield (t)": 1/1404, "Black full helm (g)": 1/1404, "Black platebody (g)": 1/1404, "Black platelegs (g)": 1/1404, "Black plateskirt (g)": 1/1404, "Black kiteshield (g)": 1/1404, "Black shield (h1)": 1/1404, "Black shield (h2)": 1/1404, "Black shield (h3)": 1/1404, "Black shield (h4)": 1/1404, "Black shield (h5)": 1/1404, "Black helm (h1)": 1/1404, "Black helm (h2)": 1/1404, "Black helm (h3)": 1/1404, "Black helm (h4)": 1/1404, "Black helm (h5)": 1/1404, "Black platebody (h1)": 1/1404, "Black platebody (h2)": 1/1404, "Black platebody (h3)": 1/1404, "Black platebody (h4)": 1/1404, "Black platebody (h5)": 1/1404, "Steel full helm (t)": 1/1404, "Steel platebody (t)": 1/1404, "Steel platelegs (t)": 1/1404, "Steel plateskirt (t)": 1/1404, "Steel kiteshield (t)": 1/1404, "Steel full helm (g)": 1/1404, "Steel platebody (g)": 1/1404, "Steel platelegs (g)": 1/1404, "Steel plateskirt (g)": 1/1404, "Steel kiteshield (g)": 1/1404, "Iron full helm (t)": 1/1404, "Iron platebody (t)": 1/1404, "Iron platelegs (t)": 1/1404, "Iron plateskirt (t)": 1/1404, "Iron kiteshield (t)": 1/1404, "Iron full helm (g)": 1/1404, "Iron platebody (g)": 1/1404, "Iron platelegs (g)": 1/1404, "Iron plateskirt (g)": 1/1404, "Iron kiteshield (g)": 1/1404, "Bronze full helm (t)": 1/1404, "Bronze platebody (t)": 1/1404, "Bronze platelegs (t)": 1/1404, "Bronze plateskirt (t)": 1/1404, "Bronze kiteshield (t)": 1/1404, "Bronze full helm (g)": 1/1404, "Bronze platebody (g)": 1/1404, "Bronze platelegs (g)": 1/1404, "Bronze plateskirt (g)": 1/1404, "Bronze kiteshield (g)": 1/1404, "Studded body (g)": 1/1404, "Studded chaps (g)": 1/1404, "Studded body (t)": 1/1404, "Studded chaps (t)": 1/1404, "Leather body (g)": 1/1404, "Leather chaps (g)": 1/1404, "Blue wizard hat (g)": 1/1404, "Blue wizard robe (g)": 1/1404, "Blue skirt (g)": 1/1404, "Blue wizard hat (t)": 1/1404, "Blue wizard robe (t)": 1/1404, "Blue skirt (t)": 1/1404, "Black wizard hat (g)": 1/1404, "Black wizard robe (g)": 1/1404, "Black skirt (g)": 1/1404, "Black wizard hat (t)": 1/1404, "Black wizard robe (t)": 1/1404, "Black skirt (t)": 1/1404, "Saradomin robe top": 1/1404, "Saradomin robe legs": 1/1404, "Guthix robe top": 1/1404, "Guthix robe legs": 1/1404, "Zamorak robe top": 1/1404, "Zamorak robe legs": 1/1404, "Ancient robe top": 1/1404, "Ancient robe legs": 1/1404, "Armadyl robe top": 1/1404, "Armadyl robe legs": 1/1404, "Bandos robe top": 1/1404, "Bandos robe legs": 1/1404, "Bob's red shirt": 1/1404, "Bob's green shirt": 1/1404, "Bob's blue shirt": 1/1404, "Bob's black shirt": 1/1404, "Bob's purple shirt": 1/1404, "Highwayman mask": 1/1404, "Blue beret": 1/1404, "Black beret": 1/1404, "Red beret": 1/1404, "White beret": 1/1404, "A powdered wig": 1/1404, "Beanie": 1/1404, "Imp mask": 1/1404, "Goblin mask": 1/1404, "Sleeping cap": 1/1404, "Flared trousers": 1/1404, "Pantaloons": 1/1404, "Black cane": 1/1404, "Staff of bob the cat": 1/1404, "Amulet of power (t)": 1/1404, "Ham joint": 1/1404, "Rain bow": 1/1404, "Golden chef's hat": 1/2808, "Golden apron": 1/2808, "Red elegant shirt": 1/2808, "Red elegant blouse": 1/2808, "Red elegant legs": 1/2808, "Red elegant skirt": 1/2808, "Green elegant shirt": 1/2808, "Green elegant blouse": 1/2808, "Green elegant legs": 1/2808, "Green elegant skirt": 1/2808, "Blue elegant shirt": 1/2808, "Blue elegant blouse": 1/2808, "Blue elegant legs": 1/2808, "Blue elegant skirt": 1/2808, "Team cape zero": 1/5616, "Team cape i": 1/5616, "Team cape x": 1/5616, "Cape of skulls": 1/5616, "Monk's robe top (g)": 1/14040, "Monk's robe (g)": 1/14040,  }
     
     loot_amount = {"Amulet of magic (t)": 1, "Wooden shield (g)": 1, "Black full helm (t)": 1, "Black platebody (t)": 1, "Black platelegs (t)": 1, "Black plateskirt (t)": 1, "Black kiteshield (t)": 1, "Black full helm (g)": 1, "Black platebody (g)": 1, "Black platelegs (g)": 1, "Black plateskirt (g)": 1, "Black kiteshield (g)": 1, "Black shield (h1)": 1, "Black shield (h2)": 1, "Black shield (h3)": 1, "Black shield (h4)": 1, "Black shield (h5)": 1, "Black helm (h1)": 1, "Black helm (h2)": 1, "Black helm (h3)": 1, "Black helm (h4)": 1, "Black helm (h5)": 1, "Black platebody (h1)": 1, "Black platebody (h2)": 1, "Black platebody (h3)": 1, "Black platebody (h4)": 1, "Black platebody (h5)": 1, "Steel full helm (t)": 1, "Steel platebody (t)": 1, "Steel platelegs (t)": 1, "Steel plateskirt (t)": 1, "Steel kiteshield (t)": 1, "Steel full helm (g)": 1, "Steel platebody (g)": 1, "Steel platelegs (g)": 1, "Steel plateskirt (g)": 1, "Steel kiteshield (g)": 1, "Iron full helm (t)": 1, "Iron platebody (t)": 1, "Iron platelegs (t)": 1, "Iron plateskirt (t)": 1, "Iron kiteshield (t)": 1, "Iron full helm (g)": 1, "Iron platebody (g)": 1, "Iron platelegs (g)": 1, "Iron plateskirt (g)": 1, "Iron kiteshield (g)": 1, "Bronze full helm (t)": 1, "Bronze platebody (t)": 1, "Bronze platelegs (t)": 1, "Bronze plateskirt (t)": 1, "Bronze kiteshield (t)": 1, "Bronze full helm (g)": 1, "Bronze platebody (g)": 1, "Bronze platelegs (g)": 1, "Bronze plateskirt (g)": 1, "Bronze kiteshield (g)": 1, "Studded body (g)": 1, "Studded chaps (g)": 1, "Studded body (t)": 1, "Studded chaps (t)": 1, "Leather body (g)": 1, "Leather chaps (g)": 1, "Blue wizard hat (g)": 1, "Blue wizard robe (g)": 1, "Blue skirt (g)": 1, "Blue wizard hat (t)": 1, "Blue wizard robe (t)": 1, "Blue skirt (t)": 1, "Black wizard hat (g)": 1, "Black wizard robe (g)": 1, "Black skirt (g)": 1, "Black wizard hat (t)": 1, "Black wizard robe (t)": 1, "Black skirt (t)": 1, "Saradomin robe top": 1, "Saradomin robe legs": 1, "Guthix robe top": 1, "Guthix robe legs": 1, "Zamorak robe top": 1, "Zamorak robe legs": 1, "Ancient robe top": 1, "Ancient robe legs": 1, "Armadyl robe top": 1, "Armadyl robe legs": 1, "Bandos robe top": 1, "Bandos robe legs": 1, "Bob's red shirt": 1, "Bob's green shirt": 1, "Bob's blue shirt": 1, "Bob's black shirt": 1, "Bob's purple shirt": 1, "Highwayman mask": 1, "Blue beret": 1, "Black beret": 1, "Red beret": 1, "White beret": 1, "A powdered wig": 1, "Beanie": 1, "Imp mask": 1, "Goblin mask": 1, "Sleeping cap": 1, "Flared trousers": 1, "Pantaloons": 1, "Black cane": 1, "Staff of bob the cat": 1, "Amulet of power (t)": 1, "Ham joint": 1, "Rain bow": 1, "Golden chef's hat": 1, "Golden apron": 1, "Red elegant shirt": 1, "Red elegant blouse": 1, "Red elegant legs": 1, "Red elegant skirt": 1, "Green elegant shirt": 1, "Green elegant blouse": 1, "Green elegant legs": 1, "Green elegant skirt": 1, "Blue elegant shirt": 1, "Blue elegant blouse": 1, "Blue elegant legs": 1, "Blue elegant skirt": 1, "Team cape zero": 1, "Team cape i": 1, "Team cape x": 1, "Cape of skulls": 1, "Monk's robe top (g)": 1, "Monk's robe (g)": 1,  }
@@ -592,7 +597,7 @@ class easy_clues(monster):
         return self.group_size == 1
 
     def constructMatrix(self):
-        self.nStates = 2 ** len(self.loot_totals.keys()) * reduce(mul, self.loot_totals.keys())
+        self.nStates = 2 ** len(self.loot_totals.keys()) * reduce(mul, [t + 1 for t in self.loot_totals.values()])
         data = []
         rowIndex = []
         colIndex = []
@@ -607,10 +612,14 @@ class easy_clues(monster):
                     continue
                 
                 odds = self.itemOdds(odds, state[lootIndex], total)
+                
+                state[lootIndex] += 1
+                j = self.stateToIndex(state, self.loot_totals)
+                
                 data += [odds]
                 rowTotal += odds
                 rowIndex += [i]
-                colIndex += [i + j]
+                colIndex += [j]
 
             # add the diagonal
             data += [1-rowTotal]
@@ -623,8 +632,8 @@ class easy_clues(monster):
         return coo_matrix((data, (rowIndex, colIndex)), shape=(self.nStates,self.nStates)).tocsr()
 
     def itemOdds(self, baseOdds, current, total):
-        # state is an array with the number of items collected per drop rate
-        return baseOdds * current / total
+        # Return the odds of getting a new item of the same rarity 
+        return baseOdds * total / current
 
 
 class theatre_of_blood(monster):
@@ -808,4 +817,9 @@ def allBosses():
         chaos_elemental(),
         theatre_of_blood_hard_mode(),
         guardians_of_the_rift()
+    ]
+
+def clues():
+    return [
+        easy_clues()
     ]
